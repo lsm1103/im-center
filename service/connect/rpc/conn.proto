@@ -1,0 +1,196 @@
+syntax = "proto3";
+
+package connect;
+
+message NullResp {}
+message NullReq {}
+message GetsQueryItem {
+  string Key = 1;                                // key
+  string Val = 2;                                // val int/str('xxx')/list('xx,xx,xx')
+  string Handle = 3;                             // 操作方法 =/>/</like
+  string NextHandle = 4;                         // 与下一个条件的操作方法 or/and
+}
+message GetsReq {
+  repeated GetsQueryItem Query = 1;              // 查询
+  string OrderBy = 2;                            // 分组
+  string Sort = 3;                               // 排序 desc/asc
+  int64 Current = 4;                             // 当前页
+  int64 PageSize = 5;                            // 页面大小
+}
+
+message SendOneMsgReq {
+  string sender_type = 1;             // 发送者类型：1发消息，2打招呼，3转发
+  string sender_id = 2;               // 发送者id
+  string sender_device_id = 3;        // 发送设备id
+  string receiver_id = 4;             // 接收者id
+  string receiver_device_id = 5;      // 接收设备id：多个设备id"，"隔开，*表示全部设备
+  string parent_id = 6;               // 父级id，引用功能
+  string send_time = 7;               // 消息发送时间
+  string msg_type = 8;                // 消息类型
+  string msg_content = 9;             // 消息内容
+  bool is_local = 10;               // 确定为发调用的该rpc节点，解决连接断了但是连接缓存还在时的递归问题
+}
+
+message At {
+  bool is_atAll= 1;                  // 是否@所有人
+  repeated string at_userIds= 2;     // 用户id列表
+}
+message SendManyMsgReq {
+  string sender_type = 1;             // 发送者类型：1发消息，2打招呼，3转发
+  string sender_id = 2;               // 发送者id
+  string sender_device_id = 3;        // 发送设备id
+  repeated string receiver_id = 4;    // 接收者id
+  string receiver_device_id = 5;      // 接收设备id：多个设备id"，"隔开，*表示全部设备
+  string parent_id = 6;               // 父级id，引用功能
+  string send_time = 7;               // 消息发送时间
+  At at = 8;                          // 需要@的用户id列表，多个用户用@隔开
+  string msg_type = 9;                // 消息类型
+  string msg_content = 10;            // 消息内容
+}
+
+message GetConnectInfoReq {
+  string user_id = 1;                 // 用户id
+  string device_id = 2;               // 设备id
+}
+message ConnectInfo {
+  string user_id = 1;                 // 用户id
+  string device_id = 2;               // 设备id
+  string server_ip = 3;               // im节点ip
+  string connect_ip = 4;              // 客户端Ip
+  string register_time = 5;           // 用户上次注册时间
+  string heartbeat_time = 6;          // 用户上次心跳时间
+  string unRegister_time = 7;         // 用户下线的时间
+  string device_info = 8;             // 设备信息
+}
+
+message OffConnectReq {
+  string user_id = 1;                 // 用户id
+  string device_id = 2;               // 设备id
+}
+
+message GetUserConnectListReq {
+  string user_id = 1;                 // 用户id
+  uint64 offset = 2;                  // 偏移量
+  uint64 limit = 3;                   // 查询条数
+}
+message UserConnectListResp {
+  repeated ConnectInfo user_connect_list = 1;   // 用户连接列表
+}
+
+message ServerInfoReq {
+  string server_id = 1;             // 服务器id, *:全部服务器
+  bool isLocal = 2;                 // 是否只获取本节点
+}
+message BusinessInfo {
+  int64 connect_len = 1;            // 客户端连接数
+  int64 user_len = 2;               // 登录用户数
+  int64 pendRegister_len = 3;       // 未处理连接事件数
+  int64 pendUnregister_len = 4;     // 未处理退出登录事件数
+}
+message SysInfo {
+  string num_CPU = 1;               // CPU数量
+  string num_CPU_USAGE = 2;         // CPU使用率
+  string num_RAM = 3;               // 内存大小
+  string num_RAM_USAGE = 4;         // 内存使用率
+  string num_DISK = 5;              // 磁盘大小
+  string num_DISK_USAGE = 6;        // 磁盘使用率
+  string num_NETWORK = 7;           // 网络流量
+  string num_NETWORK_USAGE = 8;    // 网络流量使用率
+}
+message ServerInfo {
+  string num_goroutine = 1;        // goroutine数量
+  string alloc_memory = 2;         // 分配内存
+  string totalAlloc_memory = 3;    // 分配内存总量
+  string sys_memory = 4;           // 系统内存
+  string num_GC = 5;               // gc数量
+  string CPU = 6;               // cpu使用率
+}
+message Server {
+  string server_id = 1;               // 服务器id, *:全部服务器
+  ServerInfo server_info = 2;      // 服务器信息
+  BusinessInfo business_info = 3;  // 业务信息
+  SysInfo sys_info = 4;            // 系统信息
+}
+message ServerInfoResp {
+  repeated Server server = 1;   // 节点信息列表
+}
+
+//message SyncMsgReq {
+//  int64 single_seq= 1;                // 单聊消息seq
+//  repeated int64 group_seq= 2;        // 群聊消息seq
+//  string operationType= 3;            // 操作类型,部分/全部未同步消息
+//}
+//message SingleMsgItem {
+//  int64 id = 1;                       // 自增主键
+//  int64 seq = 2;                      // 序列号
+//  string sender_type = 3;             // 发送者类型：1朋友，2打招呼，3转发
+//  int64 sender_id = 4;                // 发送者id
+//  int64 sender_device_id = 5;         // 发送设备id
+//  int64 receiver_id = 6;              // 接收者id
+//  int64 receiver_device_id = 7;       // 接收设备id：多个设备id"，"隔开，*表示全部设备
+//  string msg_type = 8;                // 消息类型
+//  string content = 9;                 // 消息内容
+//  int64 parent_id = 10;               // 父级id，引用功能
+//  string send_time = 11;              // 消息发送时间
+//  int64 status = 12;                  // 消息状态：-1撤回，0未处理，1已读
+//  string createTime = 13;             // 创建时间
+//  string updateTime = 14;             // 更新时间
+//}
+//message GroupMsgItem {
+//  int64 id = 1;                       // 自增主键
+//  int64 seq = 2;                      // 序列号
+//  string sender_type = 3;             // 发送者类型：1朋友，2打招呼，3转发
+//  int64 sender_id = 4;                // 发送者id
+//  string sender_device_id = 5;        // 发送设备id
+//  int64 receiver_id = 6;              // 接收者id
+//  int64 receiver_device_id = 7;       // 接收设备id：多个设备id"，"隔开，*表示全部设备
+//  string to_user_ids = 8;             // 需要@的用户id列表，多个用户用@隔开
+//  string msg_type = 9;                // 消息类型
+//  string content = 10;                // 消息内容
+//  int64 parent_id = 11;               // 父级id，引用功能
+//  string send_time = 12;              // 消息发送时间
+//  int64 status = 13;                  // 消息状态：-1撤回，0未处理，1已读
+//  string createTime = 14;             // 创建时间
+//  string updateTime = 15;             // 更新时间
+//}
+//message SyncMsgResp {
+//  repeated SingleMsgItem single_msg_list = 1;   // 单聊消息列表
+//  repeated GroupMsgItem group_msg_list = 2;     // 群聊消息列表
+//}
+//
+//message BatchWithdrawMsgReq {
+//  repeated string msg_ids = 1;        // 消息id列表
+//  string objectType = 2;              // 对象类型
+//}
+//
+//message BatchDelMsgReq {
+//  repeated string msg_ids = 1;        // 消息id列表
+//  string objectType = 2;              // 对象类型
+//}
+
+service Connect {
+  //  rpc getConnectList(GetConnectListReq) returns(NullResp); // 获取连接列表
+  rpc getConnectInfo(GetConnectInfoReq) returns(ConnectInfo); // 获取连接详情
+  rpc offConnect(OffConnectReq) returns(NullResp); // 关闭连接
+  rpc getUserConnectList(GetUserConnectListReq) returns(UserConnectListResp); // 获取用户连接列表,分页
+  rpc sendOneMsg(SendOneMsgReq) returns(NullResp); // 单发消息，分享/引用
+  rpc sendManyMsg(SendManyMsgReq) returns(NullResp); // 多发消息，分享/引用
+  rpc getServerInfo(ServerInfoReq) returns(ServerInfoResp); // 获取服务状态
+//  rpc syncMsg(SyncMsgReq) returns(SyncMsgResp); // 同步离线消息
+//  rpc batchWithdrawMsg(BatchWithdrawMsgReq) returns(NullResp); // 撤回消息
+//  rpc batchDelMsg(BatchDelMsgReq) returns(NullResp); // 删除消息
+}
+
+// msg-center
+//"{
+//    'itle':'杭州天气',
+//    'text': '#### 杭州天气 @150XXXXXXXX \n > 9度，西北风1级，空气良89，相对温度73%\n > ![screenshot](https://img.alicdn.com/tfs/TB1NwmBEL9TBuNjy1zbXXXpepXa-2400-1218.png)\n > ###### 10点20分发布 [天气](https://www.dingtalk.com) \n'
+//}"
+//
+//"{
+//    'title': '乔布斯 20 年前想打造一间苹果咖啡厅，而它正是 Apple Store 的前身',
+//    'text': '![screenshot](https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png)/n### 乔布斯 20 年前想打造的苹果咖啡厅\nApple Store 的设计正从原来满满的科技感走向生活化，而其生活化的走向其实可以追溯到 20 年前苹果一个建立咖啡馆的计划',
+//    'btnOrientation': '0',
+//    'singleTitle' : '阅读全文',
+//    'singleURL' : 'https://www.dingtalk.com/'
+//}"

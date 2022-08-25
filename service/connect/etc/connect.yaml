@@ -1,0 +1,18 @@
+Name: connect
+Host: 0.0.0.0
+Port: 1001
+#redis配置
+Redis:
+  Host: 172.16.10.183:6379
+  Type: node
+  # Pass: xxx
+JwtAuth:
+  AccessSecret: gsh4wetbwwd23cxbx
+  AccessExpire: 3600
+
+ConnRWSeparate: true
+IsDistributed: true
+ConnectInfoTimeout: 300
+ServerTimeout: 300
+RpcPort: 2001
+TCPListenAddr: :3001

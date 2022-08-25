@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Chat Example</title>
+    <style type="text/css">
+        html {
+            overflow: hidden;
+        }
+
+        body {
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            background: gray;
+        }
+
+        #log {
+            background: white;
+            margin: 0;
+            padding: 0.5em 0.5em 0.5em 0.5em;
+            position: absolute;
+            top: 0.5em;
+            left: 0.5em;
+            right: 0.5em;
+            bottom: 3em;
+            overflow: auto;
+        }
+
+        #form {
+            padding: 0 0.5em 0 0.5em;
+            margin: 0;
+            position: absolute;
+            bottom: 1em;
+            left: 0px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="log"></div>
+    <form id="form">
+        <input type="submit" value="Send"/>
+        <input type="text" id="msg" size="64" autofocus/>
+    </form>
+<!--    <input id=b type="file" webkitdirectory />-->
+    <script type="text/javascript">
+        window.onload = function () {
+            var conn;
+            var msg = document.getElementById("msg");
+            var log = document.getElementById("log");
+
+            // 心跳
+            function heartbeat() {
+                console.log("定时心跳: " + new Date().toLocaleString() );
+                conn.send('{"seq":"1111","cmd":"heartbeat","data":{}}');
+            }
+
+            function msgh(name, msg) {
+                let html = '<div class="admin-group">' +
+                    '<div class="admin-img" >' + name + '</div>' +
+                    // '<img class="admin-img" src="http://localhost/public/img/aa.jpg" />'+
+                    '<div class="admin-msg">' +
+                    '<i class="triangle-admin"></i>' +
+                    '<span class="admin-reply">' + msg + '</span>' +
+                    '</div>' +
+                    '</div>';
+                return html
+            }
+
+            function appendLog(item) {
+                var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+                log.appendChild(item);
+                if (doScroll) {
+                    log.scrollTop = log.scrollHeight - log.clientHeight;
+                }
+            }
+
+            document.getElementById("form").onsubmit = function () {
+                if (!conn) {
+                    return false;
+                }
+                if (!msg.value) {
+                    return false;
+                }
+                conn.send(msg.value);
+                msg.value = "";
+                return false;
+            };
+
+            if (window["WebSocket"]) {
+                // conn = new WebSocket("ws://172.16.10.87:1002/im?token=123");
+                // conn = new WebSocket("ws://172.16.10.87:1002/im", ["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyRGF0YSI6eyJkZXZpY2VJZCI6IndlYiIsInVzZXJJZCI6IjEwMDAwMDAwMSJ9LCJleHAiOjE2NjE0Mjg4NDgsImlhdCI6MTY2MTQyMTY0OH0.jgNtiporghKeCHRk5QxoXdNyeFD5KdMr0aaJisnMzvA"]);
+                conn = new WebSocket("ws://172.16.10.87:1001/im", ["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyRGF0YSI6eyJkZXZpY2VJZCI6IndlYiIsInVzZXJJZCI6IjEwMDAwMDAwMiJ9LCJleHAiOjE2NjE0Mjg4NDgsImlhdCI6MTY2MTQyMTY0OH0.ySHj1UzcjszxfovFUpV_0GaJKYbt1830N0NYy1b0Ooo"]);
+                // conn = new WebSocket("ws://" + document.location.host + "/ws");
+                conn.onopen = function(evt) {
+                    console.log("Connection open ...");
+
+                    // // 连接以后
+                    // person = prompt("请输入你的名字", "hello-" + currentTime());
+                    // if (person != null) {
+                    //     console.log("用户准备登陆:" + person);
+                    //     ws.send('{"seq":"' + sendId() + '","cmd":"login","data":{"userId":"' + person + '","appId":101}}');
+                    // }
+
+                    // console.log("用户准备登陆:");
+                    // conn.send('{"seq":"23535","cmd":"login","data":{"userId":"person","appId":"101"}}');
+
+                    // 定时心跳
+                    // heartbeat()
+                    setInterval(heartbeat, 3000)
+                };
+                conn.onclose = function (evt) {
+                    var item = document.createElement("div");
+                    item.innerHTML = "<b>Connection closed.</b>";
+                    appendLog(item);
+                };
+                conn.onmessage = function (evt) {
+                    console.log("Received Message: " + evt.data);
+                    data_array = JSON.parse(evt.data);
+                    console.log(data_array);
+
+                    // if (data_array.cmd != "heartbeat") {
+                    //     var item = document.createElement("div");
+                    //     item.innerText = evt.data;
+                    //     appendLog(item)
+                    // }
+                    if (data_array.cmd === "msg") {
+                        var item = document.createElement("div");
+                        // item.innerText = data_array.data;
+                        if (data_array.data["msg_type"] == "text") {
+                            item.innerText = data_array.data["msg_content"]["content"]
+                        }
+                        if (data_array.data["msg_type"] == "img") {
+                            item.innerHTML = '<img src="' + data_array.data["msg_content"]["url"] + '" />'
+                        }
+                        appendLog(item)
+                    }
+
+                    // var messages = evt.data.split('\n');
+                    // for (var i = 0; i < messages.length; i++) {
+                    //     var item = document.createElement("div");
+                    //     item.innerText = messages[i];
+                    //     appendLog(item);
+                    // }
+                };
+            } else {
+                var item = document.createElement("div");
+                item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
+                appendLog(item);
+            }
+        };
+
+
+        // let e_
+        // document.querySelector('#b').addEventListener('change', e => {
+        //     e_ = e
+        //     for (let entry of e.target.files)
+        //         console.log(entry.name, entry.webkitRelativePath);
+        //
+        // });
+
+        // window.onload = function () {
+        //     console.log("onload");
+        //     var xhr = new XMLHttpRequest();
+        //     console.log("xhr", xhr);
+        //     xhr.open('GET', 'http://172.16.10.87:18888/predict/v1/getPredictResult?user_id=1w&predict_id=410265791972248151&ai_type=213062728c8811ebb4b5e454e8c157e1', true);
+        //     // xhr.open('POST', 'http://172.16.10.87:8080/corsT', true);
+        //     xhr.setRequestHeader('Content-Type', 'application/json');
+        //     xhr.send(null);
+        //     xhr.onload = function () {
+        //         if (xhr.status === 200) {
+        //             var result = JSON.parse(xhr.responseText)
+        //             console.log('xhr.responseText', xhr.responseText);
+        //             console.log("result", result);
+        //         } else {
+        //             console.log('Request failed.  Returned status of ' + xhr.status);
+        //         }
+        //     };
+        // };
+    </script>
+</body>
+</html>
