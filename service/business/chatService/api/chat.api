@@ -9,11 +9,11 @@ info(
 )
 
 @server(
-	prefix: connect/v1
-	group: connect
+	prefix: friend/v1
+	group: friend
 	jwt: JwtAuth
 )
-service connect {
+service friend {
     @doc "添加朋友"
     @handler addFriend
     post /addFriend (AddFriendReq) // returns(NullResp)
@@ -26,20 +26,127 @@ service connect {
     @handler friendGets
     post /friendGets (GetsReq) returns(FriendGetsResp)
 
+}
+
+@server(
+	prefix: group/v1
+	group: friend
+	jwt: JwtAuth
+)
+service group {
     // 群组相关见group-auth-center
+    @doc "获取群组详细信息"
+    @handler groupGet
+    get /groupGet/:group_id (GroupGetReq) returns(GroupItem)
 
-    @doc "同步离线消息"
-    @handler syncMsg
-    post /syncMsg (SyncMsgReq) returns(SyncMsgResp)
+    @doc "获取群组列表"
+    @handler groupGets
+    post /groupGets (GetsReq) returns(GroupGetsResp)
 
-    @doc "撤回消息"
-    @handler batchWithdrawMsg
-    post /batchWithdrawMsg (BatchWithdrawMsgReq) // returns(NullResp)
+    @doc "创建群组"
+    @handler groupAdd
+    post /groupAdd (GroupAddReq) // returns(NullResp)
 
-    @doc "删除消息"
-    @handler batchDelMsg
-    post /batchDelMsg (BatchDelMsgReq) // returns(NullResp)
+    @doc "修改群组"
+    @handler groupUpdate
+    put /groupUpdate (GroupUpdateReq) // returns(NullResp)
 
+    @doc "批量删除群组"
+    @handler groupBatchDel
+    delete /groupBatchDel (GroupBatchDelReq) // returns(NullResp)
+
+    // 用户群组关系
+    @doc "加入群组"
+    @handler userAddGroup
+    post /userAddGroup (UserAddGroupReq) // returns(NullResp)
+
+    @doc "退出群组"
+    @handler userExitGroup
+    delete /userExitGroup (UserExitGroupReq) // returns(NullResp)
+
+    // --------------------------------------------------------------------------------------------------------
+}
+
+type (
+    GroupItem struct {
+        id               int64         `json:"id"`                  // 自增主键
+        name             string        `json:"name"`                // 组名称
+        create_user      int64         `json:"create_user"`         // 创建者id
+        ico              string        `json:"ico"`                 // 组图标
+        remark           string        `json:"remark"`              // 备注
+        parent_id        int64         `json:"parent_id"`           // 父级id
+        group_type       int64         `json:"group_type"`          // 类型: 1部门、2用户组、3群组、4圈子、5话题
+        rank             int64         `json:"rank"`                // 排序
+        status           int64         `json:"status"`              // 状态，0：弃用；1：正常
+        createTime      string        `json:"createTime"`         // 创建时间
+        updateTime       string        `json:"updateTime"`          // 更新时间
+    }
+    // 获取群组详细信息
+    GroupGetReq struct {
+        group_id         int64         `path:"group_id"`            // 组id
+    }
+
+    // 获取群组列表
+    GroupGetsResp struct {
+        list             []*GroupItem   `json:"list"`               // 数据列表
+        current          int64          `json:"current"`            // 当前页
+        pageSize         int64          `json:"pageSize"`           // 页面大小
+        isNext           bool           `json:"isNext"`             // 是否有下一页
+        // total           int64        `json:"total"`              // 总数
+    }
+
+    // 创建群组
+    GroupAddReq struct {
+        name             string        `json:"name"`                // 组名称
+        create_user      int64         `json:"create_user"`         // 创建者id
+        ico              string        `json:"ico"`                 // 组图标
+        remark           string        `json:"remark,optional"`     // 备注
+        parent_id        int64         `json:"parent_id,optional"`  // 父级id
+        group_type       int64         `json:"group_type,range=[1:10]"`      // 类型: 1部门、2用户组、3群组、4圈子、5话题
+        rank             int64         `json:"rank,default=3"`      // 排序
+    }
+
+    // 修改群组
+    GroupUpdateReq struct {
+        id               int64         `json:"id"`                  // 自增主键
+        name             string        `json:"name,optional"`                // 组名称
+        create_user      int64         `json:"create_user,optional"`         // 创建者id
+        ico              string        `json:"ico,optional"`                 // 组图标
+        remark           string        `json:"remark,optional"`     // 备注
+        parent_id        int64         `json:"parent_id,optional"`  // 父级id
+        group_type       int64         `json:"group_type,optional,range=[1:10]"`      // 类型: 1部门、2用户组、3群组、4圈子、5话题
+        rank             int64         `json:"rank,optional"`      // 排序
+        status           int64         `json:"status,optional"`              // 状态，0：弃用；1：正常
+    }
+
+    // 批量删除群组
+    GroupBatchDelReq struct {
+        group_ids        []int64       `json:"group_ids"`                       // 群组id列表
+    }
+
+    // 加入群组
+    UserAddGroupReq struct {
+        user_id          int64         `json:"user_id"`             // 加入者id
+        group_id         int64         `json:"group_id"`            // 群组id
+    }
+
+    // 退出群组
+    UserExitGroupReq struct {
+        user_id          int64         `json:"user_id"`             // 退出者id
+        group_id         int64         `json:"group_id"`            // 群组id
+    }
+
+    // --------------------------------------------------------------------------------------------------------
+
+)
+
+
+@server(
+	prefix: msg/v1
+	group: msg
+	jwt: JwtAuth
+)
+service msg {
     @doc "单发消息，分享/引用"
     @handler sendOneMsg
     post /sendOneMsg (SendOneMsgReq) returns (NullResp)
@@ -48,17 +155,40 @@ service connect {
     @handler sendManyMsg
     post /sendManyMsg (SendManyMsgReq) returns (NullResp)
 
+    @doc "消息ack"
+    @handler ackMsg
+    post /ackMsg (AckMsgReq) returns (NullResp)
+
+    @doc "同步离线消息"
+    @handler syncMsg
+    post /syncMsg (SyncMsgReq) returns(SyncMsgResp)
+
+    @doc "撤回消息"
+    @handler withdrawMsg
+    post /withdrawMsg (WithdrawMsgReq) // returns(NullResp)
+
+    @doc "删除消息"
+    @handler batchDelMsg
+    post /batchDelMsg (BatchDelMsgReq) // returns(NullResp)
+}
+
+@server(
+	prefix: service/v1
+	group: service
+	jwt: JwtAuth
+)
+service service {
 	@doc "关闭连接"
 	@handler offConnect
-	post /offConnect (OffConnectReq) returns (NullResp)
+	post /offConnect (ConnectUid) returns (NullResp)
 
-	@doc "获取用户连接列表"
+	@doc "获取某用户连接列表"
 	@handler getUserConnectList
 	post /getOnlineUsers (GetUserConnectListReq) returns (UserConnectListResp)
 
 	@doc "获取连接详情"
 	@handler getConnectInfo
-	get /getConnectInfo (GetConnectInfoReq) returns (ConnectInfoResp)
+	get /getConnectInfo (ConnectUid) returns (ConnectInfoResp)
 
 
 	@doc "获取服务状态"
@@ -68,7 +198,6 @@ service connect {
 
 type (
 	NullResp struct{}
-
 	// 获取列表；
 	GetsQueryItem {
 		Key        string `json:"key"`                                   // key
@@ -84,27 +213,135 @@ type (
 		PageSize int64            `json:"pageSize,default=10"`                //页面大小
 	}
 
-	GetConnectInfoReq {
-		UserId   string `json:"user_id"`   //用户id
-		DeviceId string `json:"device_id"` //设备id
+    // 添加朋友；
+    AddFriendReq struct {
+        ApplyUser       string         `json:"apply_user"`          // 申请用户id
+        DeviceId         string         `json:"device_id"`          // 设备id
+        AcceptUser      string         `json:"accept_user"`         // 接受用户id
+        ApplyReason     string         `json:"apply_reason"`        // 申请理由
+    }
+
+    // 批量拒绝/拉黑/删除朋友；
+    BatchChangeFriendRelationReq struct {
+        friend_ids       []string       `json:"friend_ids"`                       //好友关系id列表
+        operationType    string         `json:"operationType,options=refuse|shielde|del"`   //操作类型
+    }
+
+    FriendItem struct {
+        id               int64         `json:"id"`                  // 自增主键
+        apply_user       int64         `json:"apply_user"`          // 申请用户id
+        DeviceId         string         `json:"device_id"`          // 设备id
+        accept_user      int64         `json:"accept_user"`         // 接受用户id
+        apply_reason     string        `json:"apply_reason"`        // 申请理由
+        extra            string        `json:"extra"`               // 附加属性
+        status           int64         `json:"status"`              // 用户状态，-2：拉黑，-1：拒绝，0：申请中，1：同意
+        createTime      string        `json:"createTime"`           // 创建时间
+        updateTime       string        `json:"updateTime"`          // 更新时间
+    }
+    // 获取朋友列表；
+    FriendGetsResp struct {
+        list             []*FriendItem  `json:"list"`                                  // 数据列表
+        current          int64          `json:"current"`                               // 当前页
+        pageSize         int64          `json:"pageSize"`                              // 页面大小
+        isNext           bool           `json:"isNext"`                                // 是否有下一页
+        // total           int64        `json:"total"`                                 // 总数
+    }
+    // --------------------------------------------------------------------------------------------------------
+
+    // 单发消息，分享/引用
+	SendOneMsgReq {
+		SenderType       string `json:"sender_type"`        // 发送者类型：1发消息，2打招呼，3转发
+		SenderId         string `json:"sender_id"`          // 发送者id
+		SenderDeviceId   string `json:"sender_device_id"`   // 发送设备id
+		ReceiverId       string `json:"receiver_id"`        // 接收者id
+		ReceiverDeviceId string `json:"receiver_device_id"` // 接收设备id：多个设备id"，"隔开，*表示全部设备
+		ParentId         string `json:"parent_id"`          // 父级id，引用功能
+		SendTime         string `json:"send_time"`          // 消息发送时间
+		MsgType          string `json:"msg_type"`           // 消息类型
+		MsgContent       string `json:"msg_content"`        // 消息内容
 	}
-	ConnectInfoResp {
+
+    // 多发消息，分享/引用
+	At {
+		IsAtAll   bool     `json:"is_atAll"`   // 是否@所有人
+		AtUserIds []string `json:"at_userIds"` // 用户id列表
+	}
+	SendManyMsgReq {
+		SenderType       string   `json:"sender_type"`        // 发送者类型：1发消息，2打招呼，3转发
+		SenderId         string   `json:"sender_id"`          // 发送者id
+		SenderDeviceId   string   `json:"sender_device_id"`   // 发送设备id
+		ReceiverId       []string `json:"receiver_id"`        // 接收者id
+		ReceiverDeviceId string   `json:"receiver_device_id"` // 接收设备id：多个设备id"，"隔开，*表示全部设备
+		ParentId         string   `json:"parent_id"`          // 父级id，引用功能
+		SendTime         string   `json:"send_time"`          // 消息发送时间
+		At               At       `json:"at"`                 // 需要@的用户id列表，多个用户用@隔开
+		MsgType          string   `json:"msg_type"`           // 消息类型
+		MsgContent       string   `json:"msg_content"`        // 消息内容
+	}
+
+	// 消息ack
+	AckMsgReq {
 		UserId         string `json:"user_id"`         //用户id
 		DeviceId       string `json:"device_id"`       //设备id
-		ServerIp       string `json:"server_ip"`       //服务器ip
-		ConnectIp      string `json:"connect_ip"`      //连接ip
-		RegisterTime   string `json:"register_time"`   //上线时间
-		HeartbeatTime  string `json:"heartbeat_time"`  //上次心跳时间
-		UnRegisterTime string `json:"unRegister_time"` //上次下线时间
-		DeviceInfo     string `json:"device_info"`     //设备信息
-		IsLogoff       string `json:"is_logoff"`       //是否注销
+		Seq            string `json:"device_id"`       //消息id
 	}
 
-	OffConnectReq {
-		UserId   string `json:"user_id"`   //用户id
-		DeviceId string `json:"device_id"` //设备id
-	}
+    // 同步离线消息；
+    SyncMsgReq struct {
+        single_seq      int64       `json:"single_seq"`                         //单聊消息当前最大seq
+        group_seq       int64       `json:"group_seq"`                          //群聊消息当前最大seq
+        operationType   string      `json:"operationType,options=part|all,default=part"`     //操作类型,部分/全部未同步消息
+    }
+    SingleMsgItem struct {
+        seq              int64  `json:"seq"`                // 序列号
+        SenderType       string `json:"sender_type"`        // 发送者类型：1发消息，2打招呼，3转发
+        SenderId         string `json:"sender_id"`          // 发送者id
+        SenderDeviceId   string `json:"sender_device_id"`   // 发送设备id
+        ReceiverId       string `json:"receiver_id"`        // 接收者id
+        ReceiverDeviceId string `json:"receiver_device_id"` // 接收设备id：多个设备id"，"隔开，*表示全部设备
+        ParentId         string `json:"parent_id"`          // 父级id，引用功能
+        SendTime         string `json:"send_time"`          // 消息发送时间
+        MsgType          string `json:"msg_type"`           // 消息类型
+        MsgContent       string `json:"msg_content"`        // 消息内容
+        status           int64  `json:"status"`             // 消息状态：-1撤回，0未处理，1已读
+        createTime       string `json:"createTime"`         // 创建时间
+        updateTime       string `json:"updateTime"`         // 更新时间
+    }
+    GroupMsgItem struct {
+        seq              int64  `json:"seq"`                // 序列号
+        SenderType       string   `json:"sender_type"`        // 发送者类型：1发消息，2打招呼，3转发
+        SenderId         string   `json:"sender_id"`          // 发送者id
+        SenderDeviceId   string   `json:"sender_device_id"`   // 发送设备id
+        ReceiverId       []string `json:"receiver_id"`        // 接收者id
+        ReceiverDeviceId string   `json:"receiver_device_id"` // 接收设备id：多个设备id"，"隔开，*表示全部设备
+        ParentId         string   `json:"parent_id"`          // 父级id，引用功能
+        SendTime         string   `json:"send_time"`          // 消息发送时间
+        At               At       `json:"at"`                 // 需要@的用户id列表，多个用户用@隔开
+        MsgType          string   `json:"msg_type"`           // 消息类型
+        MsgContent       string   `json:"msg_content"`        // 消息内容
+        status           int64  `json:"status"`             // 消息状态：-1撤回，0未处理，1已读
+        createTime       string `json:"createTime"`         // 创建时间
+        updateTime       string `json:"updateTime"`         // 更新时间
+    }
+    SyncMsgResp struct {
+        single_msg_list []*SingleMsgItem       `json:"single_msg_list"`           // 单聊消息列表
+        group_msg_list  []*GroupMsgItem        `json:"group_msg_list"`            // 群聊消息列表
+    }
 
+    // 批量撤回消息；
+    WithdrawMsgReq struct {
+        seq         []string    `json:"seq"`                            //消息id列表
+        objectType      string      `json:"objectType,options=single|group"`    //对象类型
+    }
+
+    // 批量删除消息；
+    BatchDelMsgReq struct {
+        seqs         []string    `json:"seqs"`                            //消息id列表
+        objectType      string      `json:"objectType,options=single|group"`    //对象类型
+    }
+    // --------------------------------------------------------------------------------------------------------
+
+    // 获取某用户连接列表
 	GetUserConnectListReq {
 		UserId string `json:"user_id"` //用户id
 		Offset uint64 `json:"offset"`  //偏移量
@@ -124,35 +361,24 @@ type (
 		UserConnectList []UserConnectItem `json:"user_connect_list"` //在线用户列表
 	}
 
-	SendOneMsgReq {
-		SenderType       string `json:"sender_type"`        // 发送者类型：1发消息，2打招呼，3转发
-		SenderId         string `json:"sender_id"`          // 发送者id
-		SenderDeviceId   string `json:"sender_device_id"`   // 发送设备id
-		ReceiverId       string `json:"receiver_id"`        // 接收者id
-		ReceiverDeviceId string `json:"receiver_device_id"` // 接收设备id：多个设备id"，"隔开，*表示全部设备
-		ParentId         string `json:"parent_id"`          // 父级id，引用功能
-		SendTime         string `json:"send_time"`          // 消息发送时间
-		MsgType          string `json:"msg_type"`           // 消息类型
-		MsgContent       string `json:"msg_content"`        // 消息内容
+    // 获取连接详情
+	ConnectUid {
+		UserId   string `json:"user_id"`   //用户id
+		DeviceId string `json:"device_id"` //设备id
+	}
+	ConnectInfoResp {
+		UserId         string `json:"user_id"`         //用户id
+		DeviceId       string `json:"device_id"`       //设备id
+		ServerIp       string `json:"server_ip"`       //服务器ip
+		ConnectIp      string `json:"connect_ip"`      //连接ip
+		RegisterTime   string `json:"register_time"`   //上线时间
+		HeartbeatTime  string `json:"heartbeat_time"`  //上次心跳时间
+		UnRegisterTime string `json:"unRegister_time"` //上次下线时间
+		DeviceInfo     string `json:"device_info"`     //设备信息
+		IsLogoff       string `json:"is_logoff"`       //是否注销
 	}
 
-	At {
-		IsAtAll   bool     `json:"is_atAll"`   // 是否@所有人
-		AtUserIds []string `json:"at_userIds"` // 用户id列表
-	}
-	SendManyMsgReq {
-		SenderType       string   `json:"sender_type"`        // 发送者类型：1发消息，2打招呼，3转发
-		SenderId         string   `json:"sender_id"`          // 发送者id
-		SenderDeviceId   string   `json:"sender_device_id"`   // 发送设备id
-		ReceiverId       []string `json:"receiver_id"`        // 接收者id
-		ReceiverDeviceId string   `json:"receiver_device_id"` // 接收设备id：多个设备id"，"隔开，*表示全部设备
-		ParentId         string   `json:"parent_id"`          // 父级id，引用功能
-		SendTime         string   `json:"send_time"`          // 消息发送时间
-		At               At       `json:"at"`                 // 需要@的用户id列表，多个用户用@隔开
-		MsgType          string   `json:"msg_type"`           // 消息类型
-		MsgContent       string   `json:"msg_content"`        // 消息内容
-	}
-
+	//获取服务状态
 	GetServerInfoReq {
 		ServerId string `json:"server_id"` //服务器id, *:全部服务器
 	}
@@ -167,11 +393,8 @@ type (
 		UserLen           string `json:"user_len"`           //登录用户数
 		PendRegisterLen   string `json:"pendRegister_len"`   //未处理连接事件数
 		PendUnregisterLen string `json:"pendUnregister_len"` //未处理退出登录事件数
-		PendBroadcastLen  string `json:"pendBroadcast_len"`  //未处理广播事件数
 	}
 	SysInfo {
-		Ip              string `json:"ip"`                //ip地址
-		Port            string `json:"port"`              //端口号
 		NumCpu          string `json:"num_Cpu"`           // Cpu数量
 		NumCpuUsage     string `json:"num_Cpu_Usage"`     // Cpu使用率
 		NumRam          string `json:"num_Ram"`           // 内存大小

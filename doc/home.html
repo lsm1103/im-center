@@ -79,6 +79,22 @@
                 }
             }
 
+            function al(){
+                var a = null
+                var t1 = new Date().getTime()
+                heartbeat()
+                var t2 = new Date().getTime()
+                var r = t2 - t1
+                console.log(r, "r")
+                clearTimeout(a)
+                if (r > 3000){
+                    al()
+                } else {
+                    a = setTimeout(al,3000-r);
+                }
+
+            }
+
             document.getElementById("form").onsubmit = function () {
                 if (!conn) {
                     return false;
@@ -90,14 +106,14 @@
                 msg.value = "";
                 return false;
             };
-
             if (window["WebSocket"]) {
-                // conn = new WebSocket("ws://172.16.10.87:1002/im?token=123");
-                // conn = new WebSocket("ws://172.16.10.87:1002/im", ["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyRGF0YSI6eyJkZXZpY2VJZCI6IndlYiIsInVzZXJJZCI6IjEwMDAwMDAwMSJ9LCJleHAiOjE2NjE0Mjg4NDgsImlhdCI6MTY2MTQyMTY0OH0.jgNtiporghKeCHRk5QxoXdNyeFD5KdMr0aaJisnMzvA"]);
-                conn = new WebSocket("ws://172.16.10.87:1001/im", ["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyRGF0YSI6eyJkZXZpY2VJZCI6IndlYiIsInVzZXJJZCI6IjEwMDAwMDAwMiJ9LCJleHAiOjE2NjE0Mjg4NDgsImlhdCI6MTY2MTQyMTY0OH0.ySHj1UzcjszxfovFUpV_0GaJKYbt1830N0NYy1b0Ooo"]);
                 // conn = new WebSocket("ws://" + document.location.host + "/ws");
+                // conn = new WebSocket("ws://172.16.10.87:1002/im?token=123");
+                // conn = new WebSocket("ws://172.16.10.87:1001/im", [""]);
+                conn = new WebSocket( "ws://172.16.10.87:1001/im", ["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyRGF0YSI6eyJkZXZpY2VJZCI6IndlYiIsInVzZXJJZCI6IjEwMDAwMDAwNyJ9LCJleHAiOjE2NjE1MDg0NDgsImlhdCI6MTY2MTUwMTI0OH0.VOSE2lFElRxUHZTP-1jRUcEiH4EyE-y_-RC7anh1Rbc"])
                 conn.onopen = function(evt) {
                     console.log("Connection open ...");
+                    heartbeat()
 
                     // // 连接以后
                     // person = prompt("请输入你的名字", "hello-" + currentTime());
@@ -110,8 +126,8 @@
                     // conn.send('{"seq":"23535","cmd":"login","data":{"userId":"person","appId":"101"}}');
 
                     // 定时心跳
-                    // heartbeat()
-                    setInterval(heartbeat, 3000)
+                    // al();
+                    // setInterval(heartbeat, 3000)
                 };
                 conn.onclose = function (evt) {
                     var item = document.createElement("div");
@@ -123,14 +139,11 @@
                     data_array = JSON.parse(evt.data);
                     console.log(data_array);
 
-                    // if (data_array.cmd != "heartbeat") {
-                    //     var item = document.createElement("div");
-                    //     item.innerText = evt.data;
-                    //     appendLog(item)
-                    // }
-                    if (data_array.cmd === "msg") {
-                        var item = document.createElement("div");
-                        // item.innerText = data_array.data;
+                    var item = document.createElement("div");
+                    if (data_array.cmd === "heartbeat") {
+                        setTimeout(heartbeat, 3000)
+                    } else if (data_array.cmd === "msg") {
+                        // var item = document.createElement("div");
                         if (data_array.data["msg_type"] == "text") {
                             item.innerText = data_array.data["msg_content"]["content"]
                         }
@@ -139,13 +152,6 @@
                         }
                         appendLog(item)
                     }
-
-                    // var messages = evt.data.split('\n');
-                    // for (var i = 0; i < messages.length; i++) {
-                    //     var item = document.createElement("div");
-                    //     item.innerText = messages[i];
-                    //     appendLog(item);
-                    // }
                 };
             } else {
                 var item = document.createElement("div");
