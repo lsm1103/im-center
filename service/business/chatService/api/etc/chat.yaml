@@ -1,0 +1,9 @@
+Name: chat
+Host: 0.0.0.0
+Port: 8880
+
+#redis配置
+Redis:
+  Host: 172.16.10.183:6379
+  Type: node
+  # Pass: xxx

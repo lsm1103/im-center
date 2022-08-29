@@ -9,6 +9,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.5.0
+	github.com/jinzhu/copier v0.3.5
 	github.com/pkg/errors v0.9.1
 	github.com/sijms/go-ora v1.3.2
 	github.com/sony/sonyflake v1.0.0
