@@ -1,4 +1,4 @@
-package all
+package database
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/stringx"
+	"im-center/service/model/utils"
 )
 
 type (
@@ -61,7 +62,7 @@ func (m *defaultJoinTableQuery) FindUserJoinUserAuthsById(keyType string, key st
 	case nil:
 		return &resp, nil
 	case sqlc.ErrNotFound:
-		return nil, ErrNotFound
+		return nil, utils.ErrNotFound
 	default:
 		return nil, err
 	}

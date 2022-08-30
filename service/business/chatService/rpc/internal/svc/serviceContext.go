@@ -2,9 +2,9 @@ package svc
 
 import (
 	"github.com/zeromicro/go-zero/core/stores/redis"
-	"im-center/service/business/chatService/api/internal/config"
-	"im-center/service/model/cache"
 	"im-center/common/nodeHandler"
+	"im-center/service/business/chatService/rpc/internal/config"
+	"im-center/service/model/cache"
 )
 
 type ServiceContext struct {

@@ -24,7 +24,6 @@ func NewWithdrawMsgLogic(ctx context.Context, svcCtx *svc.ServiceContext) Withdr
 }
 
 func (l *WithdrawMsgLogic) WithdrawMsg(req types.WithdrawMsgReq) error {
-	// todo: add your logic here and delete this line
 
 	return nil
 }

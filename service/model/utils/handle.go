@@ -1,4 +1,4 @@
-package all
+package utils
 
 import (
 	"github.com/zeromicro/go-zero/core/stores/cache"

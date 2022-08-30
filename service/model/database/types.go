@@ -1,4 +1,4 @@
-package all
+package database
 
 type (
 	UserItem struct {
@@ -11,4 +11,11 @@ type (
 		CreateTime string `json:"create_time"` // 创建时间
 		UpdateTime  string `json:"update_time"`  // 更新时间
 	}
+
+	GroupItem Group
+	FriendItem Friend
+	GroupMsgItem GroupMsg
+	OfflineMsgItem OfflineMsg
+	SingleMsgItem SingleMsg
+	UserGroupItem UserGroup
 )

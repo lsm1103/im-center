@@ -34,7 +34,6 @@ service chat {
 	jwt: JwtAuth
 )
 service chat {
-	// 群组相关见group-auth-center
 	@doc "获取群组详细信息"
 	@handler groupGet
 	get /groupGet/:group_id (GroupGetReq) returns(GroupItem)
@@ -65,6 +64,60 @@ service chat {
 	delete /userExitGroup (UserExitGroupReq) // returns(NullResp)
 	
 	// --------------------------------------------------------------------------------------------------------
+}
+
+@server(
+	prefix: msg/v1
+	group: msg
+	jwt: JwtAuth
+)
+service chat {
+	@doc "单发消息，分享/引用"
+	@handler sendOneMsg
+	post /sendOneMsg (SendOneMsgReq) returns (NullResp)
+
+	@doc "多发消息，分享/引用"
+	@handler sendManyMsg
+	post /sendManyMsg (SendManyMsgReq) returns (NullResp)
+
+	@doc "消息ack"
+	@handler ackMsg
+	post /ackMsg (AckMsgReq) returns (NullResp)
+
+	@doc "同步离线消息"
+	@handler syncMsg
+	post /syncMsg (SyncMsgReq) returns(SyncMsgResp)
+
+	@doc "撤回消息"
+	@handler withdrawMsg
+	post /withdrawMsg (WithdrawMsgReq) // returns(NullResp)
+
+	@doc "删除消息"
+	@handler batchDelMsg
+	post /batchDelMsg (BatchDelMsgReq) // returns(NullResp)
+}
+
+@server(
+	prefix: service/v1
+	group: service
+	jwt: JwtAuth
+)
+service chat {
+	@doc "关闭连接"
+	@handler offConnect
+	post /offConnect (ConnectUid) returns (NullResp)
+
+	@doc "获取某用户连接列表"
+	@handler getUserConnectList
+	post /getOnlineUsers (GetUserConnectListReq) returns (UserConnectListResp)
+
+	@doc "获取连接详情"
+	@handler getConnectInfo
+	get /getConnectInfo (ConnectUid) returns (ConnectInfoResp)
+
+	@doc "获取服务状态"
+	@handler getServerInfo
+	get /getServerInfo (GetServerInfoReq) returns (ServerInfoResp)
 }
 
 type (
@@ -137,62 +190,7 @@ type (
 	}
 
 	// --------------------------------------------------------------------------------------------------------
-
 )
-
-@server(
-	prefix: msg/v1
-	group: msg
-	jwt: JwtAuth
-)
-service chat {
-	@doc "单发消息，分享/引用"
-	@handler sendOneMsg
-	post /sendOneMsg (SendOneMsgReq) returns (NullResp)
-	
-	@doc "多发消息，分享/引用"
-	@handler sendManyMsg
-	post /sendManyMsg (SendManyMsgReq) returns (NullResp)
-	
-	@doc "消息ack"
-	@handler ackMsg
-	post /ackMsg (AckMsgReq) returns (NullResp)
-	
-	@doc "同步离线消息"
-	@handler syncMsg
-	post /syncMsg (SyncMsgReq) returns(SyncMsgResp)
-	
-	@doc "撤回消息"
-	@handler withdrawMsg
-	post /withdrawMsg (WithdrawMsgReq) // returns(NullResp)
-	
-	@doc "删除消息"
-	@handler batchDelMsg
-	post /batchDelMsg (BatchDelMsgReq) // returns(NullResp)
-}
-
-@server(
-	prefix: service/v1
-	group: service
-	jwt: JwtAuth
-)
-service chat {
-	@doc "关闭连接"
-	@handler offConnect
-	post /offConnect (ConnectUid) returns (NullResp)
-	
-	@doc "获取某用户连接列表"
-	@handler getUserConnectList
-	post /getOnlineUsers (GetUserConnectListReq) returns (UserConnectListResp)
-	
-	@doc "获取连接详情"
-	@handler getConnectInfo
-	get /getConnectInfo (ConnectUid) returns (ConnectInfoResp)
-	
-	@doc "获取服务状态"
-	@handler getServerInfo
-	get /getServerInfo (GetServerInfoReq) returns (ServerInfoResp)
-}
 
 type (
 	NullResp struct{}
@@ -214,7 +212,7 @@ type (
 	// 添加朋友；
 	AddFriendReq {
 		ApplyUser   string `json:"apply_user"`   // 申请用户id
-		DeviceId    string `json:"device_id"`    // 设备id
+		ApplyDevice string `json:"apply_device"` // 申请设备id
 		AcceptUser  string `json:"accept_user"`  // 接受用户id
 		ApplyReason string `json:"apply_reason"` // 申请理由
 	}
@@ -228,7 +226,7 @@ type (
 	FriendItem {
 		Id           int64  `json:"id"`           // 自增主键
 		Apply_user   int64  `json:"apply_user"`   // 申请用户id
-		DeviceId     string `json:"device_id"`    // 设备id
+		Apply_device string `json:"apply_device"` // 申请设备id
 		Accept_user  int64  `json:"accept_user"`  // 接受用户id
 		Apply_reason string `json:"apply_reason"` // 申请理由
 		Extra        string `json:"extra"`        // 附加属性
@@ -268,7 +266,7 @@ type (
 		SenderType       string   `json:"sender_type"`        // 发送者类型：1发消息，2打招呼，3转发
 		SenderId         string   `json:"sender_id"`          // 发送者id
 		SenderDeviceId   string   `json:"sender_device_id"`   // 发送设备id
-		ReceiverId       []string `json:"receiver_id"`        // 接收者id
+		ReceiverId       string   `json:"receiver_id"`        // 接收者id(group_id)
 		ReceiverDeviceId string   `json:"receiver_device_id"` // 接收设备id：多个设备id"，"隔开，*表示全部设备
 		ParentId         string   `json:"parent_id"`          // 父级id，引用功能
 		SendTime         string   `json:"send_time"`          // 消息发送时间
@@ -291,7 +289,7 @@ type (
 		OperationType string `json:"operationType,options=part|all,default=part"` //操作类型,部分/全部未同步消息
 	}
 	SingleMsgItem {
-		Seq              int64  `json:"seq"`                // 序列号
+		id               int64  `json:"id"`                 // 序列号
 		SenderType       string `json:"sender_type"`        // 发送者类型：1发消息，2打招呼，3转发
 		SenderId         string `json:"sender_id"`          // 发送者id
 		SenderDeviceId   string `json:"sender_device_id"`   // 发送设备id
@@ -306,11 +304,11 @@ type (
 		UpdateTime       string `json:"updateTime"`         // 更新时间
 	}
 	GroupMsgItem {
-		Seq              int64    `json:"seq"`                // 序列号
+		id               int64    `json:"id"`                 // 序列号
 		SenderType       string   `json:"sender_type"`        // 发送者类型：1发消息，2打招呼，3转发
 		SenderId         string   `json:"sender_id"`          // 发送者id
 		SenderDeviceId   string   `json:"sender_device_id"`   // 发送设备id
-		ReceiverId       []string `json:"receiver_id"`        // 接收者id
+		ReceiverId       string   `json:"receiver_id"`        // 接收者id(group_id)
 		ReceiverDeviceId string   `json:"receiver_device_id"` // 接收设备id：多个设备id"，"隔开，*表示全部设备
 		ParentId         string   `json:"parent_id"`          // 父级id，引用功能
 		SendTime         string   `json:"send_time"`          // 消息发送时间

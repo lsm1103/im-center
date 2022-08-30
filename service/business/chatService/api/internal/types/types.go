@@ -132,7 +132,7 @@ type SendManyMsgReq struct {
 	SenderType       string   `json:"sender_type"`        // 发送者类型：1发消息，2打招呼，3转发
 	SenderId         string   `json:"sender_id"`          // 发送者id
 	SenderDeviceId   string   `json:"sender_device_id"`   // 发送设备id
-	ReceiverId       []string `json:"receiver_id"`        // 接收者id
+	ReceiverId       string   `json:"receiver_id"`        // 接收者id
 	ReceiverDeviceId string   `json:"receiver_device_id"` // 接收设备id：多个设备id"，"隔开，*表示全部设备
 	ParentId         string   `json:"parent_id"`          // 父级id，引用功能
 	SendTime         string   `json:"send_time"`          // 消息发送时间
@@ -154,7 +154,7 @@ type SyncMsgReq struct {
 }
 
 type SingleMsgItem struct {
-	Seq              int64  `json:"seq"`                // 序列号
+	Id               int64  `json:"id"`                	// 序列号
 	SenderType       string `json:"sender_type"`        // 发送者类型：1发消息，2打招呼，3转发
 	SenderId         string `json:"sender_id"`          // 发送者id
 	SenderDeviceId   string `json:"sender_device_id"`   // 发送设备id
@@ -170,11 +170,11 @@ type SingleMsgItem struct {
 }
 
 type GroupMsgItem struct {
-	Seq              int64    `json:"seq"`                // 序列号
+	Id               int64    `json:"id"`                 // 序列号
 	SenderType       string   `json:"sender_type"`        // 发送者类型：1发消息，2打招呼，3转发
 	SenderId         string   `json:"sender_id"`          // 发送者id
 	SenderDeviceId   string   `json:"sender_device_id"`   // 发送设备id
-	ReceiverId       []string `json:"receiver_id"`        // 接收者id
+	ReceiverId       string   `json:"receiver_id"`        // 接收者id
 	ReceiverDeviceId string   `json:"receiver_device_id"` // 接收设备id：多个设备id"，"隔开，*表示全部设备
 	ParentId         string   `json:"parent_id"`          // 父级id，引用功能
 	SendTime         string   `json:"send_time"`          // 消息发送时间
