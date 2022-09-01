@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"im-center/common/tool"
 
 	"im-center/service/business/chatService/rpc/chat"
 	"im-center/service/business/chatService/rpc/internal/svc"
@@ -25,7 +26,21 @@ func NewGroupGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GroupGet
 
 //  --------------------------------------------------------------------------------------------------------
 func (l *GroupGetLogic) GroupGet(in *chat.GroupGetReq) (*chat.GroupItem, error) {
-	// todo: add your logic here and delete this line
-
-	return &chat.GroupItem{}, nil
+	one, err := l.svcCtx.GroupModel.FindOne(in.GroupId)
+	if err != nil {
+		return nil, err
+	}
+	return &chat.GroupItem{
+		Id:                   one.Id,
+		Name:                 one.Name,
+		CreateUser:           one.CreateUser,
+		Ico:                  one.Ico,
+		Remark:               one.Remark,
+		ParentId:             one.ParentId,
+		GroupType:            one.GroupType,
+		Rank:                 one.Rank,
+		Status:               one.Status,
+		CreateTime:           tool.FmtTime(one.CreateTime),
+		UpdateTime:           tool.FmtTime(one.UpdateTime),
+	}, nil
 }

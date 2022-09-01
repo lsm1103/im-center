@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
+	"github.com/jinzhu/copier"
 	"im-center/common/xerr"
 	"im-center/service/connect/rpc/connect"
-	"github.com/jinzhu/copier"
+	"strconv"
 
 	"im-center/service/business/chatService/api/internal/svc"
 	"im-center/service/business/chatService/api/internal/types"
@@ -32,7 +33,7 @@ func (l *GetUserConnectListLogic) GetUserConnectList(req types.GetUserConnectLis
 		return nil, xerr.NewErrCode(xerr.USER_OPERATION_ERR)
 	}
 	list, err := node.GetUserConnectList(l.ctx, &connect.GetUserConnectListReq{
-		UserId: req.UserId,
+		UserId: strconv.FormatInt(req.UserId, 10),
 		Offset: req.Offset,
 		Limit:  req.Limit,
 	})

@@ -18,8 +18,11 @@ type (
 	At                           = chat.At
 	BatchChangeFriendRelationReq = chat.BatchChangeFriendRelationReq
 	BatchDelMsgReq               = chat.BatchDelMsgReq
+	ConnectItem                  = chat.ConnectItem
+	ConnectUid                   = chat.ConnectUid
 	FriendGetsResp               = chat.FriendGetsResp
 	FriendItem                   = chat.FriendItem
+	GetUserConnectListReq        = chat.GetUserConnectListReq
 	GetsQueryItem                = chat.GetsQueryItem
 	GetsReq                      = chat.GetsReq
 	GroupAddReq                  = chat.GroupAddReq
@@ -36,6 +39,7 @@ type (
 	SyncMsgReq                   = chat.SyncMsgReq
 	SyncMsgResp                  = chat.SyncMsgResp
 	UserAddGroupReq              = chat.UserAddGroupReq
+	UserConnectListResp          = chat.UserConnectListResp
 	UserExitGroupReq             = chat.UserExitGroupReq
 	WithdrawMsgReq               = chat.WithdrawMsgReq
 
@@ -58,6 +62,10 @@ type (
 		//  用户群组关系
 		UserAddGroup(ctx context.Context, in *UserAddGroupReq, opts ...grpc.CallOption) (*NullResp, error)
 		UserExitGroup(ctx context.Context, in *UserExitGroupReq, opts ...grpc.CallOption) (*NullResp, error)
+		//  --------------------------------------------------------------------------------------------------------
+		GetOnlineUsers(ctx context.Context, in *GetUserConnectListReq, opts ...grpc.CallOption) (*UserConnectListResp, error)
+		GetConnectInfo(ctx context.Context, in *ConnectUid, opts ...grpc.CallOption) (*ConnectItem, error)
+		OffConnect(ctx context.Context, in *ConnectUid, opts ...grpc.CallOption) (*NullResp, error)
 	}
 
 	defaultChat struct {
@@ -151,4 +159,20 @@ func (m *defaultChat) UserAddGroup(ctx context.Context, in *UserAddGroupReq, opt
 func (m *defaultChat) UserExitGroup(ctx context.Context, in *UserExitGroupReq, opts ...grpc.CallOption) (*NullResp, error) {
 	client := chat.NewChatClient(m.cli.Conn())
 	return client.UserExitGroup(ctx, in, opts...)
+}
+
+//  --------------------------------------------------------------------------------------------------------
+func (m *defaultChat) GetOnlineUsers(ctx context.Context, in *GetUserConnectListReq, opts ...grpc.CallOption) (*UserConnectListResp, error) {
+	client := chat.NewChatClient(m.cli.Conn())
+	return client.GetOnlineUsers(ctx, in, opts...)
+}
+
+func (m *defaultChat) GetConnectInfo(ctx context.Context, in *ConnectUid, opts ...grpc.CallOption) (*ConnectItem, error) {
+	client := chat.NewChatClient(m.cli.Conn())
+	return client.GetConnectInfo(ctx, in, opts...)
+}
+
+func (m *defaultChat) OffConnect(ctx context.Context, in *ConnectUid, opts ...grpc.CallOption) (*NullResp, error) {
+	client := chat.NewChatClient(m.cli.Conn())
+	return client.OffConnect(ctx, in, opts...)
 }

@@ -20,7 +20,7 @@ message GetsReq {
 message FriendItem {
   int64 id = 1;                        // 自增主键
   int64 apply_user = 2;                // 申请用户id
-  int64 apply_device = 3;              // 发送设备id
+  string apply_device = 3;              // 发送设备id
   int64 accept_user = 4;               // 接受用户id
   string apply_reason = 5;             // 申请理由
   string extra = 6;                    // 附加属性
@@ -31,7 +31,7 @@ message FriendItem {
 
 message AddFriendReq {
   int64 apply_user = 1;                // 申请用户id
-  int64 apply_device = 2;              // 发送设备id
+  string apply_device = 2;              // 发送设备id
   int64 accept_user = 3;               // 接受用户id
   string apply_reason = 4;             // 申请理由
 }
@@ -53,11 +53,11 @@ message FriendGetsResp {
 
 message SendOneMsgReq {
   string sender_type = 1;             // 发送者类型：1朋友，2打招呼，3转发
-  string sender_id = 2;               // 发送者id
+  int64 sender_id = 2;                // 发送者id
   string sender_device_id = 3;        // 发送设备id
-  string receiver_id = 4;             // 接收者id
+  int64 receiver_id = 4;              // 接收者id
   string receiver_device_id = 5;      // 接收设备id
-  string parent_id = 6;               // 父级id，引用功能
+  int64 parent_id = 6;                // 父级id，引用功能
   string send_time = 7;               // 消息发送时间
   string msg_type = 8;                // 消息类型
   string content = 9;                 // 消息内容
@@ -65,15 +65,15 @@ message SendOneMsgReq {
 
 message At {
   bool is_at_all = 1;                 // 是否@所有人
-  repeated string at_user_ids = 2;    // 用户id列表
+  repeated int64 at_user_ids = 2;     // 用户id列表
 }
 message SendManyMsgReq {
   string sender_type = 1;             // 发送者类型：1朋友，2打招呼，3转发
-  string sender_id = 2;               // 发送者id
+  int64 sender_id = 2;                // 发送者id
   string sender_device_id = 3;        // 发送设备id
-  string receiver_id = 4;             // 接收者id
+  int64 receiver_id = 4;              // 接收者id
   string receiver_device_id = 5;      // 接收设备id
-  string parent_id = 6;               // 父级id，引用功能
+  int64 parent_id = 6;                // 父级id，引用功能
   string send_time = 7;               // 消息发送时间
   At at = 8;                          // 需要@的用户id
   string msg_type = 9;                // 消息类型
@@ -83,7 +83,7 @@ message SendManyMsgReq {
 // 消息ack
 message AckMsgReq {
   int64 user_id = 1;                  // 发送者id
-  int64 device_id = 2;                // 发送设备id
+  string device_id = 2;               // 发送设备id
   int64 seq = 3;                      // 序列号
 }
 
@@ -96,43 +96,43 @@ message SingleMsgItem {
   int64 id = 1;                       // 自增主键, 序列号
   string sender_type = 2;             // 发送者类型：1朋友，2打招呼，3转发
   int64 sender_id = 3;                // 发送者id
-  int64 sender_device_id = 4;         // 发送设备id
+  string sender_device_id = 4;        // 发送设备id
   int64 receiver_id = 5;              // 接收者id
   string msg_type = 6;                // 消息类型
   string content = 7;                 // 消息内容
   int64 parent_id = 8;                // 父级id，引用功能
-  string send_time = 9;              // 消息发送时间
+  string send_time = 9;               // 消息发送时间
   int64 status = 10;                  // 消息状态：-1撤回，0未处理，1已读
-  string createTime = 11;            // 创建时间
+  string createTime = 11;             // 创建时间
   string updateTime = 12;             // 更新时间
 }
 message GroupMsgItem {
   int64 id = 1;                       // 自增主键, 序列号
   string sender_type = 2;             // 发送者类型：1朋友，2打招呼，3转发
   int64 sender_id = 3;                // 发送者id
-  int64 sender_device_id = 4;         // 发送设备id
+  string sender_device_id = 4;        // 发送设备id
   int64 receiver_id = 5;              // 接收者id
-  string at_user_ids = 6;             // 需要@的用户id列表，多个用户用，隔开
+  At at = 6;                          // 需要@的用户id
   string msg_type = 7;                // 消息类型
   string content = 8;                 // 消息内容
-  int64 parent_id = 9;               // 父级id，引用功能
+  int64 parent_id = 9;                // 父级id，引用功能
   string send_time = 10;              // 消息发送时间
   int64 status = 11;                  // 消息状态：-1撤回，0未处理，1已读
-  string createTime = 12;            // 创建时间
+  string createTime = 12;             // 创建时间
   string updateTime = 13;             // 更新时间
 }
 message SyncMsgResp {
   repeated SingleMsgItem  SingleMsgList = 1;  // 单聊消息列表
-  repeated GroupMsgItem  GroupMsgList = 2;  // 群聊消息列表
+  repeated GroupMsgItem  GroupMsgList = 2;    // 群聊消息列表
 }
 
 message WithdrawMsgReq {
-  string seq = 1;        // 消息id
+  int64 seq = 1;                      // 消息id
   string objectType = 2;              // 对象类型
 }
 
 message BatchDelMsgReq {
-  repeated string seqs = 1;        // 消息id列表
+  repeated int64 seqs = 1;            // 消息id列表
   string objectType = 2;              // 对象类型
 }
 
@@ -147,7 +147,7 @@ message GroupItem {
   int64 group_type = 7;                          // 类型: 1部门、2用户组、3群组、4圈子、5话题
   int64 rank = 8;                                // 排序
   int64 status = 9;                              // 状态，0：弃用；1：正常
-  string createTime = 10;                       // 创建时间
+  string createTime = 10;                        // 创建时间
   string updateTime = 11;                        // 更新时间
 }
 
@@ -206,38 +206,28 @@ message UserExitGroupReq {
   int64 group_id = 2;                            // 群组id
 }
 
-
+// --------------------------------------------------------------------------------------------------------
 message GetUserConnectListReq {
-  int64 user_id = 1;                  // 发送者id
-  int64 offset = 2;                // 偏移量
-  int64 limit = 3;                // 限制条数
+  int64 user_id = 1;                         // 发送者id
+  int64 offset = 2;                          // 偏移量
+  int64 limit = 3;                           // 限制条数
 }
-message UserConnectItem{
-  UserId         string `json:"user_id"`         //用户id
-  DeviceId       string `json:"device_id"`       //设备id
-  ServerIp       string `json:"server_ip"`       //服务器ip
-  ConnectIp      string `json:"connect_ip"`      //连接ip
-  RegisterTime   string `json:"register_time"`   //上线时间
-  HeartbeatTime  string `json:"heartbeat_time"`  //上次心跳时间
-  UnRegisterTime string `json:"unRegister_time"` //上次下线时间
-  DeviceInfo     string `json:"device_info"`     //设备信息
+message ConnectItem{
+  int64 User_id = 1;                         //用户id
+  string Device_id = 2;                      //设备id
+  string Server_ip = 3;                      //服务器ip
+  string Connect_ip = 4;                     //连接ip
+  string Register_time = 5;                  //上线时间
+  string Heartbeat_time = 6;                 //上次心跳时间
+  string UnRegister_time = 7;                //上次下线时间
+  string Device_info = 8;                    //设备信息
 }
 message UserConnectListResp {
-  repeated UserConnectItem user_connect_list = 1; //在线用户列表
+  repeated ConnectItem user_connect_list = 1; //在线用户列表
 }
 message ConnectUid {
   int64 user_id = 1;                  // 发送者id
-  int64 device_id = 2;                // 发送设备id
-}
-message ConnectInfoResp {
-  int64 user_id = 1;                  // 用户id
-  int64 device_id = 2;                // 设备id
-  string server_ip = 2;                // 服务器ip
-  string connect_ip = 2;                // 连接ip
-  string register_time = 2;                // 上线时间
-  string heartbeat_time = 2;                // 上次心跳时间
-  string unRegister_time = 2;                // 上次下线时间
-  string device_info = 2;                // 设备信息
+  string device_id = 2;                // 发送设备id
 }
 
 service Chat {
@@ -263,7 +253,7 @@ service Chat {
   rpc userExitGroup (UserExitGroupReq) returns(NullResp);   // 退出群组
   // --------------------------------------------------------------------------------------------------------
   rpc getOnlineUsers (GetUserConnectListReq) returns(UserConnectListResp);   // 获取某用户连接列表
-  rpc getConnectInfo (ConnectUid) returns(ConnectInfoResp);   // 获取连接详情
+  rpc getConnectInfo (ConnectUid) returns(ConnectItem);   // 获取连接详情
   rpc offConnect (ConnectUid) returns(NullResp);   // 关闭连接
   //rpc getServerInfo (GetServerInfoReq) returns(ServerInfoResp);   // 获取服务状态
 }

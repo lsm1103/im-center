@@ -1,4 +1,4 @@
-package service
+package logic
 
 import (
 	"context"
@@ -6,40 +6,40 @@ import (
 	"im-center/service/connect/rpc/connect"
 	"strconv"
 
-	"im-center/service/business/chatService/api/internal/svc"
-	"im-center/service/business/chatService/api/internal/types"
+	"im-center/service/business/chatService/rpc/chat"
+	"im-center/service/business/chatService/rpc/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetConnectInfoLogic struct {
-	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
+	logx.Logger
 }
 
-func NewGetConnectInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) GetConnectInfoLogic {
-	return GetConnectInfoLogic{
-		Logger: logx.WithContext(ctx),
+func NewGetConnectInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetConnectInfoLogic {
+	return &GetConnectInfoLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
+		Logger: logx.WithContext(ctx),
 	}
 }
 
-func (l *GetConnectInfoLogic) GetConnectInfo(req types.ConnectUid) (resp *types.ConnectItem, err error) {
+func (l *GetConnectInfoLogic) GetConnectInfo(in *chat.ConnectUid) (*chat.ConnectItem, error) {
 	node := l.svcCtx.RpcU.GetNode()
 	if node == nil {
 		return nil, xerr.NewErrCode(xerr.USER_OPERATION_ERR)
 	}
 	info, err := node.GetConnectInfo(l.ctx, &connect.GetConnectInfoReq{
-		UserId:   strconv.FormatInt(req.UserId, 10),
-		DeviceId: req.DeviceId,
+		UserId:   strconv.FormatInt(in.UserId, 10),
+		DeviceId: in.DeviceId,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &types.ConnectItem{
-		UserId:         req.UserId,
+	return &chat.ConnectItem{
+		UserId:         in.UserId,
 		DeviceId:       info.DeviceId,
 		ServerIp:       info.ServerIp,
 		ConnectIp:      info.ConnectIp,

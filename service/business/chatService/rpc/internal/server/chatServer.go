@@ -103,3 +103,19 @@ func (s *ChatServer) UserExitGroup(ctx context.Context, in *chat.UserExitGroupRe
 	l := logic.NewUserExitGroupLogic(ctx, s.svcCtx)
 	return l.UserExitGroup(in)
 }
+
+//  --------------------------------------------------------------------------------------------------------
+func (s *ChatServer) GetOnlineUsers(ctx context.Context, in *chat.GetUserConnectListReq) (*chat.UserConnectListResp, error) {
+	l := logic.NewGetOnlineUsersLogic(ctx, s.svcCtx)
+	return l.GetOnlineUsers(in)
+}
+
+func (s *ChatServer) GetConnectInfo(ctx context.Context, in *chat.ConnectUid) (*chat.ConnectItem, error) {
+	l := logic.NewGetConnectInfoLogic(ctx, s.svcCtx)
+	return l.GetConnectInfo(in)
+}
+
+func (s *ChatServer) OffConnect(ctx context.Context, in *chat.ConnectUid) (*chat.NullResp, error) {
+	l := logic.NewOffConnectLogic(ctx, s.svcCtx)
+	return l.OffConnect(in)
+}

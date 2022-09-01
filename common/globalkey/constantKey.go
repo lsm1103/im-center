@@ -56,6 +56,21 @@ var Oauth2Implicit string = "implicit"							//隐藏式
 var Oauth2Password string = "password"  							//密码式
 var Oauth2ClientCredentials string = "client_credentials"  		//客户端凭证式
 
+// 群组状态
+var Department int64 = 1	// 部门
+var UserGroup int64 = 2		// 用户组
+var Group int64 = 3			// 群组
+var Circle int64 = 4		// 圈子
+var Topics int64 = 5		// 话题
+
+var GroupType = map[int64]string{
+	Department : "部门",
+	UserGroup : "用户组",
+	Group : "群组",
+	Circle : "圈子",
+	Topics : "话题",
+}
+
 var UserStatus = map[int64]string{
 	UserDel : "已删除",
 	UserFreeze : "已冻结",

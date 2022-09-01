@@ -1,4 +1,4 @@
-package service
+package logic
 
 import (
 	"context"
@@ -6,34 +6,34 @@ import (
 	"im-center/service/connect/rpc/connect"
 	"strconv"
 
-	"im-center/service/business/chatService/api/internal/svc"
-	"im-center/service/business/chatService/api/internal/types"
+	"im-center/service/business/chatService/rpc/chat"
+	"im-center/service/business/chatService/rpc/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type OffConnectLogic struct {
-	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
+	logx.Logger
 }
 
-func NewOffConnectLogic(ctx context.Context, svcCtx *svc.ServiceContext) OffConnectLogic {
-	return OffConnectLogic{
-		Logger: logx.WithContext(ctx),
+func NewOffConnectLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OffConnectLogic {
+	return &OffConnectLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
+		Logger: logx.WithContext(ctx),
 	}
 }
 
-func (l *OffConnectLogic) OffConnect(req types.ConnectUid) (resp *types.NullResp, err error) {
+func (l *OffConnectLogic) OffConnect(in *chat.ConnectUid) (resp *chat.NullResp, err error) {
 	node := l.svcCtx.RpcU.GetNode()
 	if node == nil {
 		return nil, xerr.NewErrCode(xerr.USER_OPERATION_ERR)
 	}
 	_, err = node.OffConnect(l.ctx, &connect.OffConnectReq{
-		UserId: strconv.FormatInt(req.UserId, 10),
-		DeviceId: req.DeviceId,
+		UserId: strconv.FormatInt(in.UserId, 10),
+		DeviceId: in.DeviceId,
 	})
 	if err != nil {
 		return nil, err

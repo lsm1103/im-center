@@ -4,3 +4,9 @@ Etcd:
   Hosts:
   - 127.0.0.1:2379
   Key: chat.rpc
+
+DB:
+  DataSource: root:pujian123@tcp(172.16.10.183:4306)/im-center?charset=utf8mb4&loc=Asia%2FShanghai&parseTime=true
+Cache:
+  - Host: 172.16.10.183:6379
+#  Pass: G62m50oigInC30sf
