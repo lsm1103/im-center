@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"im-center/common/globalkey"
+	"im-center/common/uniqueid"
 	"im-center/service/business/chatService/rpc/chat"
 	"im-center/service/business/chatService/rpc/internal/svc"
 	"im-center/service/model/database"
@@ -35,6 +36,7 @@ func (l *GroupAddLogic) GroupAdd(in *chat.GroupAddReq) (*chat.NullResp, error) {
 	}
 	// 写入数据库，日志处理由网关来发起异步任务
 	_, err := l.svcCtx.GroupModel.Insert(nil, &database.Group{
+		Id:         uniqueid.GenId(),
 		Name:       in.Name,
 		CreateUser: in.CreateUser,
 		Ico:        in.Ico,

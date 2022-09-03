@@ -93,6 +93,7 @@ CREATE TABLE `offline_msg`
     `object_type` tinyint  NOT NULL COMMENT '对象类型,1:friend；2：群组',
     `object_id`   bigint NOT NULL COMMENT '对象id, friendId/groupId',
     `last_ack_seq`         bigint NOT NULL COMMENT '最后确认序列号',
+    `newest_seq`         bigint NOT NULL COMMENT '最新的消息序列号',
     `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),

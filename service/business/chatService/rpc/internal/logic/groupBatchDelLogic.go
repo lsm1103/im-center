@@ -24,7 +24,7 @@ func NewGroupBatchDelLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Gro
 }
 
 func (l *GroupBatchDelLogic) GroupBatchDel(in *chat.GroupBatchDelReq) (*chat.NullResp, error) {
-	// todo: add your logic here and delete this line
+	//l.svcCtx.GroupModel.Delete(in.GroupIds)
 
 	return &chat.NullResp{}, nil
 }
