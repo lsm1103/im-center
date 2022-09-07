@@ -140,11 +140,16 @@ func (m *defaultUserGroupModel) Update(session sqlx.Session, data *UserGroup) er
 	userGroupUserIdGroupIdKey := fmt.Sprintf("%s%v:%v", cacheUserGroupUserIdGroupIdPrefix, data.UserId, data.GroupId)
 	userGroupIdKey := fmt.Sprintf("%s%v", cacheUserGroupIdPrefix, data.Id)
 	_, err := m.Exec(func(conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userGroupRowsWithPlaceHolder)
-		if session != nil {
-			return session.Exec(query, data.UserId, data.GroupId, data.Status, data.Id)
+		query := fmt.Sprintf( "update %s set %s where `id` = %d", m.table,
+			strings.Join(tool.BuildFields(data, tool.IsEmptyValue), ", "), data.Id )
+		if data.Id == 0 {
+			query = fmt.Sprintf( "update %s set %s where `user_id` = %d and `group_id` = %d", m.table,
+				strings.Join(tool.BuildFields(data, tool.IsEmptyValue), ", "), data.UserId, data.GroupId  )
 		}
-		return conn.Exec(query, data.UserId, data.GroupId, data.Status, data.Id)
+		if session != nil {
+			return session.Exec(query)
+		}
+		return conn.Exec(query)
 	}, userGroupIdKey, userGroupUserIdGroupIdKey)
 	return err
 }

@@ -2,6 +2,8 @@ package logic
 
 import (
 	"context"
+	"github.com/jinzhu/copier"
+	"im-center/common/tool"
 
 	"im-center/service/business/chatService/rpc/chat"
 	"im-center/service/business/chatService/rpc/internal/svc"
@@ -23,8 +25,28 @@ func NewFriendGetsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Friend
 	}
 }
 
-func (l *FriendGetsLogic) FriendGets(in *chat.GetsReq) (*chat.FriendGetsResp, error) {
-	// todo: add your logic here and delete this line
-
-	return &chat.FriendGetsResp{}, nil
+func (l *FriendGetsLogic) FriendGets(in *chat.GetsReq) (resp *chat.GroupGetsResp, err error) {
+	findReq := &tool.GetsReq{
+		OrderBy:  in.OrderBy,
+		Sort:     in.Sort,
+		Current:  in.Current,
+		PageSize: in.PageSize,
+	}
+	for _,item := range in.Query{
+		findReq.Query = append(findReq.Query, &tool.GetsQueryItem{
+			Key:        item.Key,
+			Val:        item.Val,
+			Handle:     item.Handle,
+			NextHandle: item.NextHandle,
+		})
+	}
+	all, err := l.svcCtx.FriendModel.FindAll(findReq)
+	if err != nil {
+		return nil, err
+	}
+	err = copier.Copy(resp, all)
+	if err != nil {
+		return nil, err
+	}
+	return
 }

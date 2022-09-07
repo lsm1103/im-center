@@ -27,28 +27,28 @@ var CtxKeyStatus string = "Status"
 var MachineTypes = map[string]int64{
 	"Other": 0, "Android": 1, "IOS": 2, "Windows": 3, "Mac OS X": 4, "Web": 5,
 }
-
-//需验证的Api列表
-var VerifyTypes = map[string][]string{
-	"DeviceApis":    []string{"/dddddd"},
-	"SecretKeyApis": []string{"/dddddd"},
-	"TokenApis":     []string{
-		"/doc",
-		"/docData",
-		"/user_center/v1/userRegister",
-		"/user_center/v1/userLogin",
-		"/file_center/v0/*",
-		"/predict/v1/*",
-		"/auth/v1/getToken",
-		"/auth/v1/getAuthInfo",
-	},
-}
-
-//状态类型
-var StatusTypes = map[string]int64{
-	"del":globalkey.Del,
-	"freeze":globalkey.UserFreeze,
-}
+var (
+	//需验证的Api列表
+	VerifyTypes = map[string][]string{
+		"DeviceApis":    []string{"/dddddd"},
+		"SecretKeyApis": []string{"/dddddd"},
+		"TokenApis": []string{
+			"/doc",
+			"/docData",
+			"/user_center/v1/userRegister",
+			"/user_center/v1/userLogin",
+			"/file_center/v0/*",
+			"/predict/v1/*",
+			"/auth/v1/getToken",
+			"/auth/v1/getAuthInfo",
+		},
+	}
+	//状态类型
+	StatusTypes = map[string]int64{
+		"del":    globalkey.Del,
+		"freeze": globalkey.UserFreeze,
+	}
+)
 
 func GetRegisterDeviceFromCtx(ctx context.Context) int64 {
 	if md,ok := metadata.FromIncomingContext(ctx); ok{

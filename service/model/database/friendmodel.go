@@ -143,11 +143,16 @@ func (m *defaultFriendModel) Update(session sqlx.Session, data *Friend) error {
 	friendIdKey := fmt.Sprintf("%s%v", cacheFriendIdPrefix, data.Id)
 	friendApplyUserAcceptUserKey := fmt.Sprintf("%s%v:%v", cacheFriendApplyUserAcceptUserPrefix, data.ApplyUser, data.AcceptUser)
 	_, err := m.Exec(func(conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, friendRowsWithPlaceHolder)
-		if session != nil {
-			return session.Exec(query, data.ApplyUser, data.ApplyDevice, data.AcceptUser, data.ApplyReason, data.Extra, data.Status, data.Id)
+		query := fmt.Sprintf( "update %s set %s where `id` = %d", m.table,
+			strings.Join(tool.BuildFields(data, tool.IsEmptyValue), ", "), data.Id )
+		if data.Id == 0 {
+			query = fmt.Sprintf( "update %s set %s where `apply_user` = %d and `accept_user` = %d", m.table,
+				strings.Join(tool.BuildFields(data, tool.IsEmptyValue), ", "), data.ApplyUser, data.AcceptUser )
 		}
-		return conn.Exec(query, data.ApplyUser, data.ApplyDevice, data.AcceptUser, data.ApplyReason, data.Extra, data.Status, data.Id)
+		if session != nil {
+			return session.Exec(query)
+		}
+		return conn.Exec(query)
 	}, friendIdKey, friendApplyUserAcceptUserKey)
 	return err
 }

@@ -56,7 +56,7 @@ var Oauth2Implicit string = "implicit"							//隐藏式
 var Oauth2Password string = "password"  							//密码式
 var Oauth2ClientCredentials string = "client_credentials"  		//客户端凭证式
 
-// 群组状态
+// 群组类型
 var Department int64 = 1	// 部门
 var UserGroup int64 = 2		// 用户组
 var Group int64 = 3			// 群组

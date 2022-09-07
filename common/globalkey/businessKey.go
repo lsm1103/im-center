@@ -14,4 +14,11 @@ var (
 
 	// 用户连接超时时间/秒 600 * 60
 	HeartbeatExpirationTime = 60
+
+	SingleMsg = "singleMsg"
+	GroupMsg = "groupMsg"
+	MsgType = map[string]int64{
+		SingleMsg:1,
+		GroupMsg:2,
+	}
 )

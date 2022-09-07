@@ -2,9 +2,9 @@ package logic
 
 import (
 	"context"
-
 	"im-center/service/business/chatService/rpc/chat"
 	"im-center/service/business/chatService/rpc/internal/svc"
+	"im-center/service/model/database"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +24,14 @@ func NewAddFriendLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddFrie
 }
 
 func (l *AddFriendLogic) AddFriend(in *chat.AddFriendReq) (*chat.NullResp, error) {
-	// todo: add your logic here and delete this line
-
+	_, err := l.svcCtx.FriendModel.Insert(nil, &database.Friend{
+		ApplyUser:   in.ApplyUser,
+		ApplyDevice: in.ApplyDevice,
+		AcceptUser:  in.AcceptUser,
+		ApplyReason: in.ApplyReason,
+	})
+	if err != nil {
+		return nil, err
+	}
 	return &chat.NullResp{}, nil
 }

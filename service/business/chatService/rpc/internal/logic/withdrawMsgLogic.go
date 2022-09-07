@@ -2,6 +2,9 @@ package logic
 
 import (
 	"context"
+	"im-center/common/globalkey"
+	"im-center/common/xerr"
+	"im-center/service/model/database"
 
 	"im-center/service/business/chatService/rpc/chat"
 	"im-center/service/business/chatService/rpc/internal/svc"
@@ -24,7 +27,23 @@ func NewWithdrawMsgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Withd
 }
 
 func (l *WithdrawMsgLogic) WithdrawMsg(in *chat.WithdrawMsgReq) (*chat.NullResp, error) {
-	// todo: add your logic here and delete this line
-
+	switch in.ObjectType {
+	case globalkey.SingleMsg:
+		err := l.svcCtx.SingleMsgModel.SoftDelete(nil, &database.SingleMsg{
+			Id:               in.Seq,
+			Status:           globalkey.Withdraw,
+		})
+		if err != nil {
+			return nil, xerr.NewErrCode(xerr.USER_OPERATION_ERR)
+		}
+	case globalkey.GroupMsg:
+		err := l.svcCtx.GroupMsgModel.SoftDelete(nil, &database.GroupMsg{
+			Id:               in.Seq,
+			Status:           globalkey.Withdraw,
+		})
+		if err != nil {
+			return nil, xerr.NewErrCode(xerr.USER_OPERATION_ERR)
+		}
+	}
 	return &chat.NullResp{}, nil
 }

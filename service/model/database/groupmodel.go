@@ -145,11 +145,16 @@ func (m *defaultGroupModel) Update(session sqlx.Session, data *Group) error {
 	groupIdKey := fmt.Sprintf("%s%v", cacheGroupIdPrefix, data.Id)
 	groupCreateUserNameKey := fmt.Sprintf("%s%v:%v", cacheGroupCreateUserNamePrefix, data.CreateUser, data.Name)
 	_, err := m.Exec(func(conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, groupRowsWithPlaceHolder)
-		if session != nil {
-			return session.Exec(query, data.Name, data.CreateUser, data.Ico, data.Remark, data.ParentId, data.GroupType, data.Rank, data.Status, data.Id)
+		query := fmt.Sprintf( "update %s set %s where `id` = %d", m.table,
+			strings.Join(tool.BuildFields(data, tool.IsEmptyValue), ", "), data.Id )
+		if data.Id == 0 {
+			query = fmt.Sprintf( "update %s set %s where `create_user` = %d and `name` = %d", m.table,
+				strings.Join(tool.BuildFields(data, tool.IsEmptyValue), ", "), data.CreateUser, data.Name )
 		}
-		return conn.Exec(query, data.Name, data.CreateUser, data.Ico, data.Remark, data.ParentId, data.GroupType, data.Rank, data.Status, data.Id)
+		if session != nil {
+			return session.Exec(query)
+		}
+		return conn.Exec(query)
 	}, groupCreateUserNameKey, groupIdKey)
 	return err
 }

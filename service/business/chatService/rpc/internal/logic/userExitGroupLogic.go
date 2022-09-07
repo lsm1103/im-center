@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"im-center/common/globalkey"
 	"im-center/service/business/chatService/rpc/chat"
 	"im-center/service/business/chatService/rpc/internal/svc"
 	"im-center/service/model/database"
@@ -24,11 +25,10 @@ func NewUserExitGroupLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Use
 }
 
 func (l *UserExitGroupLogic) UserExitGroup(in *chat.UserExitGroupReq) (*chat.NullResp, error) {
-	// todo 修改updata，实现多字段确定唯一问题
 	err := l.svcCtx.UserGroupModel.SoftDelete(nil, &database.UserGroup{
 		UserId:  in.UserId,
 		GroupId: in.GroupId,
-		Status:  -1,
+		Status:  globalkey.Del,
 	})
 	if err != nil {
 		return nil, err

@@ -148,11 +148,16 @@ func (m *defaultGroupMsgModel) Update(session sqlx.Session, data *GroupMsg) erro
 	groupMsgIdKey := fmt.Sprintf("%s%v", cacheGroupMsgIdPrefix, data.Id)
 	groupMsgSenderIdReceiverIdKey := fmt.Sprintf("%s%v:%v", cacheGroupMsgSenderIdReceiverIdPrefix, data.SenderId, data.ReceiverId)
 	_, err := m.Exec(func(conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, groupMsgRowsWithPlaceHolder)
-		if session != nil {
-			return session.Exec(query, data.SenderType, data.SenderId, data.SenderDeviceId, data.ReceiverId, data.ReceiverDeviceId, data.AtUserIds, data.MsgType, data.Content, data.ParentId, data.SendTime, data.Status, data.Id)
+		query := fmt.Sprintf( "update %s set %s where `id` = %d", m.table,
+			strings.Join(tool.BuildFields(data, tool.IsEmptyValue), ", "), data.Id )
+		if data.Id == 0 {
+			query = fmt.Sprintf( "update %s set %s where `sender_id` = %d and `receiver_id` = %d", m.table,
+				strings.Join(tool.BuildFields(data, tool.IsEmptyValue), ", "), data.SenderId, data.ReceiverId )
 		}
-		return conn.Exec(query, data.SenderType, data.SenderId, data.SenderDeviceId, data.ReceiverId, data.ReceiverDeviceId, data.AtUserIds, data.MsgType, data.Content, data.ParentId, data.SendTime, data.Status, data.Id)
+		if session != nil {
+			return session.Exec(query)
+		}
+		return conn.Exec(query)
 	}, groupMsgIdKey, groupMsgSenderIdReceiverIdKey)
 	return err
 }

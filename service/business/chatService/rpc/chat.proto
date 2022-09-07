@@ -37,8 +37,8 @@ message AddFriendReq {
 }
 
 message BatchChangeFriendRelationReq {
-  repeated string friend_ids = 1;      // 好友关系id列表
-  string operationType = 2;            // 操作类型
+  repeated int64 friend_ids = 1;      // 好友关系id列表
+  int64 operationType = 2;            // 操作类型
 }
 
 message FriendGetsResp {
@@ -84,7 +84,9 @@ message SendManyMsgReq {
 message AckMsgReq {
   int64 user_id = 1;                  // 发送者id
   string device_id = 2;               // 发送设备id
-  int64 seq = 3;                      // 序列号
+  string objectType = 3;              // 对象类型
+  int64 objectId = 4;                 // 对象id
+  int64 seq = 5;                      // 序列号
 }
 
 message SyncMsgReq {
