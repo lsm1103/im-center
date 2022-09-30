@@ -13,7 +13,7 @@ import (
 type (
 	RedisCache struct {
 		logx.Logger
-		RedisClient *redis.Redis
+		RdsC *redis.Redis
 	}
 	ConnectInfo struct {
 		UserId         string `json:"user_id"`          // 用户Id
@@ -27,15 +27,15 @@ type (
 	}
 )
 
-func NewRedisCache(rds *redis.Redis) *RedisCache {
+func NewRedisCache(rdsC *redis.Redis) *RedisCache {
 	return &RedisCache{
 		Logger: logx.WithContext(context.Background() ),
-		RedisClient: rds,
+		RdsC: rdsC,
 	}
 }
 
 func (d *RedisCache) NodeRegister(nodeId, data string, timeOut int) error {
-	err := d.RedisClient.Setex(globalkey.BuildKey(globalkey.CacheNodeIdKey, nodeId), data, timeOut)
+	err := d.RdsC.Setex(globalkey.BuildKey(globalkey.CacheNodeIdKey, nodeId), data, timeOut)
 	if err != nil {
 		return err
 	}
@@ -43,12 +43,12 @@ func (d *RedisCache) NodeRegister(nodeId, data string, timeOut int) error {
 }
 
 func (d *RedisCache) GetNodeList() []string {
-	r, err := d.RedisClient.Keys(globalkey.CacheNodeIdMATCHKey)
+	r, err := d.RdsC.Keys(globalkey.CacheNodeIdMATCHKey)
 	if err != nil {
 		d.Logger.Errorf("获取节点keys失败：%v", err)
 		return nil
 	}
-	nodes,err := d.RedisClient.Mget(r...)
+	nodes,err := d.RdsC.Mget(r...)
 	if err != nil {
 		d.Logger.Errorf("获取节点失败：%v", err)
 		return nil
@@ -61,12 +61,12 @@ func (d *RedisCache) SaveConnect(data *ConnectInfo, timeOut int) error {
 	if err != nil {
 		return err
 	}
-	_, err = d.RedisClient.SetnxEx(globalkey.BuildKey(globalkey.CacheConnectIdKey, data.UserId, data.DeviceId), string(info), timeOut)
+	_, err = d.RdsC.SetnxEx(globalkey.BuildKey(globalkey.CacheConnectIdKey, data.UserId, data.DeviceId), string(info), timeOut)
 	return err
 }
 
 func (d *RedisCache) DeleteConnect(userId string, deviceId string) error {
-	_, err := d.RedisClient.Del(globalkey.BuildKey(globalkey.CacheConnectIdKey, userId, deviceId))
+	_, err := d.RdsC.Del(globalkey.BuildKey(globalkey.CacheConnectIdKey, userId, deviceId))
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func (d *RedisCache) DeleteConnect(userId string, deviceId string) error {
 }
 
 func (d *RedisCache) ExistConnect(userId string, deviceId string) bool {
-	exists, err := d.RedisClient.Exists(globalkey.BuildKey(globalkey.CacheConnectIdKey, userId, deviceId))
+	exists, err := d.RdsC.Exists(globalkey.BuildKey(globalkey.CacheConnectIdKey, userId, deviceId))
 	if err != nil {
 		d.Logger.Errorf("判断连接是否存在失败：%v", err)
 	}
@@ -82,7 +82,7 @@ func (d *RedisCache) ExistConnect(userId string, deviceId string) bool {
 }
 
 func (d *RedisCache) GetConnectInfo(userId string, deviceId string) (*ConnectInfo, error) {
-	info, err := d.RedisClient.Get(globalkey.BuildKey(globalkey.CacheConnectIdKey, userId, deviceId))
+	info, err := d.RdsC.Get(globalkey.BuildKey(globalkey.CacheConnectIdKey, userId, deviceId))
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (d *RedisCache) GetConnectInfo(userId string, deviceId string) (*ConnectInf
 }
 
 func (d *RedisCache) GetConnectList(offset, limit uint64) ([]*ConnectInfo, error) {
-	r, _, err := d.RedisClient.Scan(offset, globalkey.CacheConnectIdMATCHKey, int64(limit))
+	r, _, err := d.RdsC.Scan(offset, globalkey.CacheConnectIdMATCHKey, int64(limit))
 	if err != nil {
 		return nil, err
 	}
@@ -117,14 +117,14 @@ func (d *RedisCache) GetConnectList(offset, limit uint64) ([]*ConnectInfo, error
 }
 
 func (d *RedisCache) GetConnectListByUser(userId string) ([]*ConnectInfo, error) {
-	r, err := d.RedisClient.Keys(globalkey.BuildKey(globalkey.CacheConnectIdUserIdMATCHKey, userId) )
+	r, err := d.RdsC.Keys(globalkey.BuildKey(globalkey.CacheConnectIdUserIdMATCHKey, userId) )
 	if err != nil {
 		return nil, err
 	}
 	if len(r) == 0 {
 		return nil, errors.New("没有找到该连接")
 	}
-	connectList, err := d.RedisClient.Mget(r...)
+	connectList, err := d.RdsC.Mget(r...)
 	if err != nil {
 		return nil, err
 	}
@@ -141,5 +141,5 @@ func (d *RedisCache) GetConnectListByUser(userId string) ([]*ConnectInfo, error)
 }
 
 func (d *RedisCache) ExpireConnect(userId string, deviceId string, seconds int) error {
-	return d.RedisClient.Expire(globalkey.BuildKey(globalkey.CacheConnectIdKey, userId, deviceId), seconds)
+	return d.RdsC.Expire(globalkey.BuildKey(globalkey.CacheConnectIdKey, userId, deviceId), seconds)
 }

@@ -20,5 +20,4 @@
 > TODO发送给客户端的消息体数据结构可能要变化；
 >* 通过再次上线时客户端记录的最大seq来同步离线消息
 
-
 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

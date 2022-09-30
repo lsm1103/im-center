@@ -1,9 +1,9 @@
 Name: chat.rpc
 ListenOn: 127.0.0.1:8080
-Etcd:
-  Hosts:
-  - 127.0.0.1:2379
-  Key: chat.rpc
+#Etcd:
+#  Hosts:
+#  - 127.0.0.1:2379
+#  Key: chat.rpc
 
 DB:
   DataSource: root:pujian123@tcp(172.16.10.183:4306)/im-center?charset=utf8mb4&loc=Asia%2FShanghai&parseTime=true

@@ -25,7 +25,7 @@ func NewFriendGetsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Friend
 	}
 }
 
-func (l *FriendGetsLogic) FriendGets(in *chat.GetsReq) (resp *chat.GroupGetsResp, err error) {
+func (l *FriendGetsLogic) FriendGets(in *chat.GetsReq) (resp *chat.FriendGetsResp, err error) {
 	findReq := &tool.GetsReq{
 		OrderBy:  in.OrderBy,
 		Sort:     in.Sort,

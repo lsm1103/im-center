@@ -178,10 +178,10 @@ type ServerItem struct {
 }
 
 type BusinessInfo struct {
-	ConnectLen        string `json:"connect_len"`        //连接数
-	UserLen           string `json:"user_len"`           //登录用户数
-	PendRegisterLen   string `json:"pendRegister_len"`   //未处理连接事件数
-	PendUnregisterLen string `json:"pendUnregister_len"` //未处理退出登录事件数
+	ConnectLen        int64 `json:"connect_len"`        //连接数
+	UserLen           int64 `json:"user_len"`           //登录用户数
+	PendRegisterLen   int64 `json:"pendRegister_len"`   //未处理连接事件数
+	PendUnregisterLen int64 `json:"pendUnregister_len"` //未处理退出登录事件数
 }
 
 type SysInfo struct {

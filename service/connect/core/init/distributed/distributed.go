@@ -98,6 +98,9 @@ func (c *Distributed) NodeRegister(info *types.ServerItem) {
 
 func (c *Distributed) GetServiceInfo() (resp *types.ServerInfoResp, err error) {
 	nodeList := c.Cache.GetNodeList()
+	if nodeList == nil {
+		return
+	}
 	var resp_ []types.ServerItem
 	for _,item := range nodeList {
 		tmp := &types.ServerItem{}

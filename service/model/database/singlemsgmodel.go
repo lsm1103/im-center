@@ -46,7 +46,8 @@ type (
 	}
 
 	SingleMsg struct {
-		Id               int64     `db:"id"`                 // 自增主键(消息序列号,每个单聊都维护一个消息序列号)
+		Id               int64     `db:"id"`                 // 自增主键
+		Seq              int64     `db:"seq"`                // 消息序列号,每个单聊都维护一个消息序列号
 		SenderType       int64     `db:"sender_type"`        // 发送者类型：1朋友，2打招呼，3转发
 		SenderId         int64     `db:"sender_id"`          // 发送者id
 		SenderDeviceId   string    `db:"sender_device_id"`   // 发送设备id
@@ -74,8 +75,8 @@ func (m *defaultSingleMsgModel) Insert(data *SingleMsg) (sql.Result,error) {
 	singleMsgIdKey := fmt.Sprintf("%s%v", cacheSingleMsgIdPrefix, data.Id)
 singleMsgSenderIdReceiverIdKey := fmt.Sprintf("%s%v:%v", cacheSingleMsgSenderIdReceiverIdPrefix, data.SenderId, data.ReceiverId)
     ret, err := m.Exec(func(conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, singleMsgRowsExpectAutoSet)
-		return conn.Exec(query, data.Id, data.SenderType, data.SenderId, data.SenderDeviceId, data.ReceiverId, data.ReceiverDeviceId, data.MsgType, data.Content, data.ParentId, data.SendTime, data.Status)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, singleMsgRowsExpectAutoSet)
+		return conn.Exec(query, data.Id, data.Seq, data.SenderType, data.SenderId, data.SenderDeviceId, data.ReceiverId, data.ReceiverDeviceId, data.MsgType, data.Content, data.ParentId, data.SendTime, data.Status)
 	}, singleMsgIdKey, singleMsgSenderIdReceiverIdKey)
 	return ret,err
 }
@@ -85,11 +86,11 @@ func (m *defaultSingleMsgModel) Insert(session sqlx.Session, data *SingleMsg) (s
 	singleMsgIdKey := fmt.Sprintf("%s%v", cacheSingleMsgIdPrefix, data.Id)
 	singleMsgSenderIdReceiverIdKey := fmt.Sprintf("%s%v:%v", cacheSingleMsgSenderIdReceiverIdPrefix, data.SenderId, data.ReceiverId)
 	ret, err := m.Exec(func(conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, singleMsgRowsExpectAutoSet)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, singleMsgRowsExpectAutoSet)
 		if session != nil {
-			return session.Exec(query, data.Id, data.SenderType, data.SenderId, data.SenderDeviceId, data.ReceiverId, data.ReceiverDeviceId, data.MsgType, data.Content, data.ParentId, data.SendTime, data.Status)
+			return session.Exec(query, data.Id, data.Seq, data.SenderType, data.SenderId, data.SenderDeviceId, data.ReceiverId, data.ReceiverDeviceId, data.MsgType, data.Content, data.ParentId, data.SendTime, data.Status)
 		}
-		return conn.Exec(query, data.Id, data.SenderType, data.SenderId, data.SenderDeviceId, data.ReceiverId, data.ReceiverDeviceId, data.MsgType, data.Content, data.ParentId, data.SendTime, data.Status)
+		return conn.Exec(query, data.Id, data.Seq, data.SenderType, data.SenderId, data.SenderDeviceId, data.ReceiverId, data.ReceiverDeviceId, data.MsgType, data.Content, data.ParentId, data.SendTime, data.Status)
 	}, singleMsgIdKey, singleMsgSenderIdReceiverIdKey)
 	return ret, err
 }
@@ -137,7 +138,7 @@ func (m *defaultSingleMsgModel) Update(data *SingleMsg) error {
 singleMsgSenderIdReceiverIdKey := fmt.Sprintf("%s%v:%v", cacheSingleMsgSenderIdReceiverIdPrefix, data.SenderId, data.ReceiverId)
     _, err := m.Exec(func(conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, singleMsgRowsWithPlaceHolder)
-		return conn.Exec(query, data.SenderType, data.SenderId, data.SenderDeviceId, data.ReceiverId, data.ReceiverDeviceId, data.MsgType, data.Content, data.ParentId, data.SendTime, data.Status, data.Id)
+		return conn.Exec(query, data.Seq, data.SenderType, data.SenderId, data.SenderDeviceId, data.ReceiverId, data.ReceiverDeviceId, data.MsgType, data.Content, data.ParentId, data.SendTime, data.Status, data.Id)
 	}, singleMsgIdKey, singleMsgSenderIdReceiverIdKey)
 	return err
 }

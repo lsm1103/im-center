@@ -30,7 +30,7 @@ func (l *WithdrawMsgLogic) WithdrawMsg(in *chat.WithdrawMsgReq) (*chat.NullResp,
 	switch in.ObjectType {
 	case globalkey.SingleMsg:
 		err := l.svcCtx.SingleMsgModel.SoftDelete(nil, &database.SingleMsg{
-			Id:               in.Seq,
+			Id:               in.Id,
 			Status:           globalkey.Withdraw,
 		})
 		if err != nil {
@@ -38,7 +38,7 @@ func (l *WithdrawMsgLogic) WithdrawMsg(in *chat.WithdrawMsgReq) (*chat.NullResp,
 		}
 	case globalkey.GroupMsg:
 		err := l.svcCtx.GroupMsgModel.SoftDelete(nil, &database.GroupMsg{
-			Id:               in.Seq,
+			Id:               in.Id,
 			Status:           globalkey.Withdraw,
 		})
 		if err != nil {

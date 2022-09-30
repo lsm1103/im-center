@@ -31,7 +31,7 @@ func (l *BatchDelMsgLogic) BatchDelMsg(in *chat.BatchDelMsgReq) (*chat.NullResp,
 		return nil, xerr.NewErrMsg("找不到该消息对象类型")
 	}
 	success := []int64{}
-	for _,seq := range in.Seqs {
+	for _,seq := range in.Ids {
 		switch in.ObjectType {
 		case globalkey.SingleMsg:
 			err := l.svcCtx.SingleMsgModel.SoftDelete(nil, &database.SingleMsg{

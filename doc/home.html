@@ -110,7 +110,9 @@
                 // conn = new WebSocket("ws://" + document.location.host + "/ws");
                 // conn = new WebSocket("ws://172.16.10.87:1002/im?token=123");
                 // conn = new WebSocket("ws://172.16.10.87:1001/im", [""]);
-                conn = new WebSocket( "ws://172.16.10.87:1001/im", ["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyRGF0YSI6eyJkZXZpY2VJZCI6IndlYiIsInVzZXJJZCI6IjEwMDAwMDAwNyJ9LCJleHAiOjE2NjE1MDg0NDgsImlhdCI6MTY2MTUwMTI0OH0.VOSE2lFElRxUHZTP-1jRUcEiH4EyE-y_-RC7anh1Rbc"])
+                conn = new WebSocket( "ws://172.16.10.87:1002/im", [
+                    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyRGF0YSI6eyJkZXZpY2VJZCI6IndlYiIsInVzZXJJZCI6IjEwMDAwMDAwMiJ9LCJleHAiOjE2NjQ0MDMxNDEsImlhdCI6MTY2NDM1OTk0MX0.Wi6UOfzzcC3tSxrGr3Q7Ry0aUMJUetpcMFK5RAuVxQo"
+                ])
                 conn.onopen = function(evt) {
                     console.log("Connection open ...");
                     heartbeat()

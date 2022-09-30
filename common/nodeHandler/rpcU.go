@@ -26,10 +26,10 @@ type (
 	}
 
 	BusinessInfo struct {
-		ConnectLen        string `json:"connect_len"`        //连接数
-		UserLen           string `json:"user_len"`           //登录用户数
-		PendRegisterLen   string `json:"pendRegister_len"`   //未处理连接事件数
-		PendUnregisterLen string `json:"pendUnregister_len"` //未处理退出登录事件数
+		ConnectLen        int64 `json:"connect_len"`        //连接数
+		UserLen           int64 `json:"user_len"`           //登录用户数
+		PendRegisterLen   int64 `json:"pendRegister_len"`   //未处理连接事件数
+		PendUnregisterLen int64 `json:"pendUnregister_len"` //未处理退出登录事件数
 	}
 
 	SysInfo struct {
@@ -62,7 +62,7 @@ func NewRpcU(ch *cache.RedisCache) *RpcU {
 		Logger: logx.WithContext(context.Background()),
 		Cache:  ch,
 	}
-	go timedTask.Timer(3*time.Second, 30*time.Second, upNodeList, r, nil, nil)
+	go timedTask.Timer(5*time.Second, 60*time.Second, upNodeList, r, nil, nil)
 	return r
 }
 
@@ -76,6 +76,9 @@ func (r *RpcU) GetNode() connectclient.Connect {
 
 func (r *RpcU) GetNodeList() (resp *ServerInfoResp, err error) {
 	nodeList := r.Cache.GetNodeList()
+	if nodeList == nil {
+		return
+	}
 	var resp_ []ServerItem
 	for _, item := range nodeList {
 		tmp := &ServerItem{}

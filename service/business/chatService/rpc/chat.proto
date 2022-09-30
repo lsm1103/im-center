@@ -50,17 +50,17 @@ message FriendGetsResp {
 }
 
 // --------------------------------------------------------------------------------------------------------
-
 message SendOneMsgReq {
-  string sender_type = 1;             // 发送者类型：1朋友，2打招呼，3转发
+  int64 sender_type = 1;              // 发送者类型：1朋友，2打招呼，3转发
   int64 sender_id = 2;                // 发送者id
   string sender_device_id = 3;        // 发送设备id
-  int64 receiver_id = 4;              // 接收者id
+  int64 receiver_id = 4;              // 接收者id(朋友id)
   string receiver_device_id = 5;      // 接收设备id
-  int64 parent_id = 6;                // 父级id，引用功能
-  string send_time = 7;               // 消息发送时间
-  string msg_type = 8;                // 消息类型
-  string content = 9;                 // 消息内容
+  int64 receiver_user_id = 6;         // 接收用户id
+  int64 parent_id = 7;                // 父级id，引用功能
+  string send_time = 8;               // 消息发送时间
+  int64 msg_type = 9;                 // 消息类型
+  string content = 10;                // 消息内容
 }
 
 message At {
@@ -68,15 +68,15 @@ message At {
   repeated int64 at_user_ids = 2;     // 用户id列表
 }
 message SendManyMsgReq {
-  string sender_type = 1;             // 发送者类型：1朋友，2打招呼，3转发
+  int64 sender_type = 1;             // 发送者类型：1群内，2，3转发
   int64 sender_id = 2;                // 发送者id
   string sender_device_id = 3;        // 发送设备id
-  int64 receiver_id = 4;              // 接收者id
+  int64 receiver_id = 4;              // 接收群组id
   string receiver_device_id = 5;      // 接收设备id
   int64 parent_id = 6;                // 父级id，引用功能
   string send_time = 7;               // 消息发送时间
   At at = 8;                          // 需要@的用户id
-  string msg_type = 9;                // 消息类型
+  int64 msg_type = 9;                // 消息类型
   string content = 10;                // 消息内容
 }
 
@@ -85,56 +85,74 @@ message AckMsgReq {
   int64 user_id = 1;                  // 发送者id
   string device_id = 2;               // 发送设备id
   string objectType = 3;              // 对象类型
-  int64 objectId = 4;                 // 对象id
-  int64 seq = 5;                      // 序列号
+   int64 objectId = 4;                 // 对象id
+   int64 seq = 5;                      // 序列号
 }
 
+message singleFilter {
+  int64 seq = 1;
+  int64 friend_id = 2;                // 朋友id
+}
+message groupFilter {
+  int64 seq = 1;
+  int64 group_id = 2;                // 群聊id
+}
 message SyncMsgReq {
-  int64 single_seq= 1;                // 单聊消息seq
-  int64 group_seq= 2;                 // 群聊消息seq
-  string operationType= 3;            // 操作类型,部分/全部未同步消息
+  int64 user_id = 1;                  // 用户id
+  string device_id = 2;               // 设备id
+  repeated singleFilter singleFilters = 3;      // 单聊消息seq
+  repeated groupFilter groupFilters= 4;       // 群聊消息seq
+  string operationType= 5;            // 操作类型,部分/全部未同步消息
 }
 message SingleMsgItem {
   int64 id = 1;                       // 自增主键, 序列号
-  string sender_type = 2;             // 发送者类型：1朋友，2打招呼，3转发
-  int64 sender_id = 3;                // 发送者id
-  string sender_device_id = 4;        // 发送设备id
-  int64 receiver_id = 5;              // 接收者id
-  string msg_type = 6;                // 消息类型
-  string content = 7;                 // 消息内容
-  int64 parent_id = 8;                // 父级id，引用功能
-  string send_time = 9;               // 消息发送时间
-  int64 status = 10;                  // 消息状态：-1撤回，0未处理，1已读
-  string createTime = 11;             // 创建时间
-  string updateTime = 12;             // 更新时间
-}
-message GroupMsgItem {
-  int64 id = 1;                       // 自增主键, 序列号
-  string sender_type = 2;             // 发送者类型：1朋友，2打招呼，3转发
-  int64 sender_id = 3;                // 发送者id
-  string sender_device_id = 4;        // 发送设备id
-  int64 receiver_id = 5;              // 接收者id
-  At at = 6;                          // 需要@的用户id
+  int64 seq = 2;                       // 自增主键, 序列号
+  string sender_type = 3;             // 发送者类型：1朋友，2打招呼，3转发
+  int64 sender_id = 4;                // 发送者id
+  string sender_device_id = 5;        // 发送设备id
+  int64 receiver_id = 6;              // 接收者id
   string msg_type = 7;                // 消息类型
   string content = 8;                 // 消息内容
   int64 parent_id = 9;                // 父级id，引用功能
-  string send_time = 10;              // 消息发送时间
+  string send_time = 10;               // 消息发送时间
   int64 status = 11;                  // 消息状态：-1撤回，0未处理，1已读
   string createTime = 12;             // 创建时间
   string updateTime = 13;             // 更新时间
 }
+message GroupMsgItem {
+  int64 id = 1;                       // 自增主键, 序列号
+  int64 seq = 2;                       // 自增主键, 序列号
+  string sender_type = 3;             // 发送者类型：1朋友，2打招呼，3转发
+  int64 sender_id = 4;                // 发送者id
+  string sender_device_id = 5;        // 发送设备id
+  int64 receiver_id = 6;              // 接收者id
+  At at = 7;                          // 需要@的用户id
+  string msg_type = 8;                // 消息类型
+  string content = 9;                 // 消息内容
+  int64 parent_id = 10;                // 父级id，引用功能
+  string send_time = 11;               // 消息发送时间
+  int64 status = 12;                  // 消息状态：-1撤回，0未处理，1已读
+  string createTime = 13;             // 创建时间
+  string updateTime = 14;             // 更新时间
+}
+message SingleMsgs {
+  repeated SingleMsgItem msgs = 1;
+}
+message GroupMsgs {
+  repeated GroupMsgItem msgs = 1;
+}
 message SyncMsgResp {
-  repeated SingleMsgItem  SingleMsgList = 1;  // 单聊消息列表
-  repeated GroupMsgItem  GroupMsgList = 2;    // 群聊消息列表
+  map<string, SingleMsgs> SingleMsgList = 1;  // 单聊消息列表
+  map<string, GroupMsgs> GroupMsgList = 2;    // 群聊消息列表
 }
 
 message WithdrawMsgReq {
-  int64 seq = 1;                      // 消息id
+  int64 id = 1;                      // 消息id
   string objectType = 2;              // 对象类型
 }
 
 message BatchDelMsgReq {
-  repeated int64 seqs = 1;            // 消息id列表
+  repeated int64 ids = 1;            // 消息id列表
   string objectType = 2;              // 对象类型
 }
 

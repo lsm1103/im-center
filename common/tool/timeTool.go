@@ -10,6 +10,14 @@ func FmtTime(t time.Time) string {
 	return t.In(Loc).Format(TimeFmt)
 }
 
+func StrToTime(str string) time.Time {
+	location, err := time.ParseInLocation(TimeFmt, str, Loc)
+	if err != nil {
+		return time.Time{}
+	}
+	return location
+}
+
 func GetNowTime(timeFmt string) string {
 	return time.Now().In(Loc).Format(timeFmt)
 }
